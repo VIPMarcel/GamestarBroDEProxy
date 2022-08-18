@@ -1,0 +1,15 @@
+MySQL Tables:
+
+ (Players):
+   UUID
+   Name
+   IPAdress
+   KicksAmount
+   GroupId
+   GroupExpiresDate
+   PlayTime
+   Coins
+
+
+Config-Boolean:
+  IP-Bans: false

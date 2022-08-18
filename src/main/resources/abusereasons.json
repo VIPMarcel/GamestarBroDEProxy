@@ -1,0 +1,30 @@
+[
+  {
+    "AbuseReason": "Hausverbot",
+    "AbuseLevel": "admin",
+    "AbuseId": 0,
+    "Times": [
+      "permanent ban"
+    ]
+  },
+  {
+    "AbuseReason": "Clientmods",
+    "AbuseLevel": "staff",
+    "AbuseId": 1,
+    "Times": [
+      "30d ban",
+      "90d ban",
+      "permanent ban"
+    ]
+  },
+  {
+    "AbuseReason": "Werbung",
+    "AbuseLevel": "staff",
+    "AbuseId": 2,
+    "Times": [
+      "7d mute",
+      "14 mute",
+      "permanent mute"
+    ]
+  }
+]

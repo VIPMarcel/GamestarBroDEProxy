@@ -1,0 +1,4 @@
+name: Proxy
+version: '${project.version}'
+main: vip.marcel.gamestarbro.proxy.Proxy
+description: the official gamestarbro.de proxy system
