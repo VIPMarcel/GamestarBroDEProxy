@@ -1,17 +1,23 @@
 package vip.marcel.gamestarbro.proxy.commands;
 
+import com.google.common.collect.Lists;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import vip.marcel.gamestarbro.proxy.Proxy;
+import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class PardonIdCommand extends Command {
+public class PardonIdCommand extends Command implements TabExecutor {
 
     private final Proxy plugin;
 
@@ -34,7 +40,7 @@ public class PardonIdCommand extends Command {
 
         if(this.plugin.getAbuseManager().isAbuseIdInUseBans(abuseId)) {
             abuseType = AbuseType.BAN;
-        } else if(this.plugin.getAbuseManager().isAbuseIdInUseBans(abuseId)) {
+        } else if(this.plugin.getAbuseManager().isAbuseIdInUseMutes(abuseId)) {
             abuseType = AbuseType.MUTE;
         } else {
             sender.sendMessage(this.plugin.getPrefix() + "Die AbuseId §e" + arguments[0] + " §7existiert nicht.");
@@ -135,6 +141,17 @@ public class PardonIdCommand extends Command {
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7AbuseType §8» §e" + pardonTypeName);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7Begnadigt von §8» §e" + pardonedByName);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] arguments) {
+        List<String> output = Lists.newArrayList();
+
+        if(arguments.length == 1) {
+            output.addAll(this.plugin.getAbuseManager().getAllActiveAbuseIds());
+        }
+
+        return output.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

@@ -1,19 +1,25 @@
 package vip.marcel.gamestarbro.proxy.commands;
 
+import com.google.common.collect.Lists;
+import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-public class AbuseCommand extends Command {
+public class AbuseCommand extends Command implements TabExecutor {
 
     private final Proxy plugin;
 
@@ -76,6 +82,11 @@ public class AbuseCommand extends Command {
             return;
         }
 
+        if(this.plugin.hasPermission(uuid, "proxy.abuse.bypass")) {
+            sender.sendMessage(this.plugin.getPrefix() + "§cDu darfst keine §eTeammitglieder §cbestrafen.");
+            return;
+        }
+
         final String abuseDurationString = abuse.getAbuseDurations().get(testAbuseLevel);
         final int duration = Integer.parseInt(abuseDurationString.split(" ")[0]);
         final String format = abuseDurationString.split(" ")[1];
@@ -113,7 +124,7 @@ public class AbuseCommand extends Command {
         }
 
         abusedInfo.setAbuseReason(abuse.getAbuseReason());
-        abusedInfo.setAbuseId(this.plugin.getAbuseManager().generateAbuseId()); //TODO: Check if this number is not in database -> /checkAbuse <AbuseId> || /pardon <AbuseId>
+        abusedInfo.setAbuseId(this.plugin.getAbuseManager().generateAbuseId());
         abusedInfo.setAbuseCreated(System.currentTimeMillis());
 
         long abuseExpiresMillis = System.currentTimeMillis();
@@ -160,10 +171,10 @@ public class AbuseCommand extends Command {
 
         if(sender != ProxyServer.getInstance().getConsole()) {
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m---------------------§r§8┃ §cAbuse §8§m┃--------------------");
-            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + name);
-            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Grund §8» §e" + abusedInfo.getAbusedByName());
+            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + name + " §8┃ §e" + abusedInfo.getAbuseId());
+            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Grund §8» §e" + abusedInfo.getAbuseReason());
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7AbuseType §8» " + "§e" + finalAbuseTypeName);
-            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Dauer §8» §e" + (abusedInfo.getAbuseExpires() == -1 ? "Permanent" : this.plugin.getAbuseTimeManager().getTempBanLength(abusedInfo.getAbuseExpires())));
+            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Dauer §8» §e" + (abusedInfo.getAbuseExpires() == -1 ? "Permanent" : this.plugin.getAbuseTimeManager().getSimpleTimeString(TimeUnit.MILLISECONDS.toSeconds(abusedInfo.getAbuseExpires() - abusedInfo.getAbuseCreated()))));
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Von §8» §e" + abusedInfo.getAbusedByName());
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
         }
@@ -204,12 +215,34 @@ public class AbuseCommand extends Command {
 
     private void sendAbuseStaffMessage(CommandSender sender, String name, AbusedInfo abusedInfo, String finalAbuseTypeName) {
         sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m---------------------§r§8┃ §cAbuse §8§m┃--------------------");
-        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + name);
-        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Grund §8» §e" + abusedInfo.getAbusedByName());
+        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + name + " §8┃ §e" + abusedInfo.getAbuseId());
+        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Grund §8» §e" + abusedInfo.getAbuseReason());
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7AbuseType §8» " + "§e" + finalAbuseTypeName);
-        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Dauer §8» §e" + (abusedInfo.getAbuseExpires() == -1 ? "Permanent" : this.plugin.getAbuseTimeManager().getTempBanLength(abusedInfo.getAbuseExpires())));
+        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Dauer §8» §e" + (abusedInfo.getAbuseExpires() == -1 ? "Permanent" : this.plugin.getAbuseTimeManager().getSimpleTimeString(TimeUnit.MILLISECONDS.toSeconds(abusedInfo.getAbuseExpires() - abusedInfo.getAbuseCreated()))));
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7Von §8» §e" + abusedInfo.getAbusedByName());
         sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] arguments) {
+        List<String> output = Lists.newArrayList();
+
+        if(arguments.length == 1) {
+            for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {
+                output.add(players.getName());
+            }
+        }
+
+        if(arguments.length == 2) {
+            this.plugin.getAbuseIds().keySet().forEach(abuseIds -> {
+                final Abuse abuse = this.plugin.getAbuseIds().get(abuseIds);
+                if(sender.hasPermission(abuse.getAbusePermissionNeed())) {
+                    output.add(String.valueOf(abuseIds));
+                }
+            });
+        }
+
+        return output.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

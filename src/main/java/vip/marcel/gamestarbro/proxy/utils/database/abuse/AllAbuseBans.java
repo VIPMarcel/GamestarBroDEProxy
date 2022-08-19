@@ -57,6 +57,26 @@ public class AllAbuseBans {
         return output;
     }
 
+    public List<String> getAllAbuseIds() {
+        List<String> output = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AllAbuseBans");
+            ResultSet resultSet = statement.executeQuery();
+
+            while(resultSet.next()) {
+                output.add(resultSet.getString("AbuseId"));
+            }
+
+            resultSet.close();
+            statement.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+
+        return output;
+    }
+
     public boolean createBan(AbusedInfo abuse) {
         if(!this.isExisting(abuse.getAbuseId())) {
 

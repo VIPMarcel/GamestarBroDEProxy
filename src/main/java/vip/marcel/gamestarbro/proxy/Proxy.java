@@ -2,13 +2,14 @@ package vip.marcel.gamestarbro.proxy;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import vip.marcel.gamestarbro.proxy.commands.AbuseCommand;
-import vip.marcel.gamestarbro.proxy.commands.PardonCommand;
-import vip.marcel.gamestarbro.proxy.commands.PardonIdCommand;
+import vip.marcel.gamestarbro.proxy.commands.*;
+import vip.marcel.gamestarbro.proxy.listener.LoginListener;
 import vip.marcel.gamestarbro.proxy.utils.database.MySQL;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseBans;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseMutes;
@@ -19,11 +20,13 @@ import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 import vip.marcel.gamestarbro.proxy.utils.managers.AbuseManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.AbuseTimeManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.ConfigManager;
+import vip.marcel.gamestarbro.proxy.utils.managers.PermissionsManager;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Proxy extends Plugin {
 
@@ -41,6 +44,8 @@ public final class Proxy extends Plugin {
 
     private boolean maintenance;
 
+    private LuckPerms luckPerms;
+
     private Map<String, Abuse> abuseReasons;
     private Map<Integer, Abuse> abuseIds;
 
@@ -53,6 +58,7 @@ public final class Proxy extends Plugin {
     private ConfigManager configManager;
     private AbuseTimeManager abuseTimeManager;
     private AbuseManager abuseManager;
+    private PermissionsManager permissionsManager;
 
     @Override
     public void onEnable() {
@@ -84,6 +90,7 @@ public final class Proxy extends Plugin {
         this.configManager = new ConfigManager(this);
         this.abuseTimeManager = new AbuseTimeManager(this);
         this.abuseManager = new AbuseManager(this);
+        this.permissionsManager = new PermissionsManager(this);
 
         this.mySQL = new MySQL(this);
         this.mySQL.connect();
@@ -92,10 +99,24 @@ public final class Proxy extends Plugin {
         this.allAbuseBans = new AllAbuseBans(this);
         this.allAbuseMutes = new AllAbuseMutes(this);
 
+        this.luckPerms = LuckPermsProvider.get();
+
         final PluginManager pluginManager = ProxyServer.getInstance().getPluginManager();
         pluginManager.registerCommand(this, new AbuseCommand(this, "abuse", "proxy.command.abuse"));
         pluginManager.registerCommand(this, new PardonCommand(this, "pardon", "proxy.command.pardon"));
         pluginManager.registerCommand(this, new PardonIdCommand(this, "pardonId", "proxy.command.pardonId"));
+        pluginManager.registerCommand(this, new CheckAbuseCommand(this, "checkAbuse", "proxy.command.checkAbuse"));
+        pluginManager.registerCommand(this, new KickCommand(this, "kick", "proxy.command.kick"));
+
+        pluginManager.registerListener(this, new LoginListener(this));
+    }
+
+    public boolean hasPermission(UUID uuid, String permission) {
+        return this.permissionsManager.hasPermission(uuid, permission);
+    }
+
+    public LuckPerms getLuckPerms() {
+        return this.luckPerms;
     }
 
     public MySQL getMySQL() {
@@ -128,6 +149,10 @@ public final class Proxy extends Plugin {
 
     public AbuseManager getAbuseManager() {
         return this.abuseManager;
+    }
+
+    public PermissionsManager getPermissionsManager() {
+        return this.permissionsManager;
     }
 
     public String getPrefix() {

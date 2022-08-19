@@ -4,16 +4,8 @@ MySQL Tables:
    UUID
    Name
    IPAdress
+   AbuseLevel
    KicksAmount
-   GroupId
-   GroupExpiresDate
    PlayTime
    Coins
 
-
-Config-Boolean:
-  IP-Bans: false
-
-
-
-  /pardonId <AbuseId>

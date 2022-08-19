@@ -6,6 +6,8 @@ import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MuteAbuse {
@@ -89,6 +91,26 @@ public class MuteAbuse {
 
         }
         return false;
+    }
+
+    public List<String> getAllAbuseIds() {
+        List<String> output = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseMutes");
+            ResultSet resultSet = statement.executeQuery();
+
+            while(resultSet.next()) {
+                output.add(resultSet.getString("AbuseId"));
+            }
+
+            resultSet.close();
+            statement.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+
+        return output;
     }
 
     public AbusedInfo getAbuse(UUID uuid) {

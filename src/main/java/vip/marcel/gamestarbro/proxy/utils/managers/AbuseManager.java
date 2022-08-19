@@ -1,5 +1,6 @@
 package vip.marcel.gamestarbro.proxy.utils.managers;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
@@ -8,6 +9,7 @@ import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 public record AbuseManager(Proxy plugin) {
@@ -140,6 +142,15 @@ public record AbuseManager(Proxy plugin) {
         } else {
             return generatedAbuseId;
         }
+    }
+
+    public List<String> getAllActiveAbuseIds() {
+        List<String> output = Lists.newArrayList();
+
+        output.addAll(this.plugin.getBanAbuse().getAllAbuseIds());
+        output.addAll(this.plugin.getMuteAbuse().getAllAbuseIds());
+
+        return output;
     }
 
 }

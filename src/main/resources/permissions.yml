@@ -1,6 +1,16 @@
 proxy.command.abuse - /abuse <Player> <AbuseNumber>
 proxy.abuse.notify - Get abuse messages
+proxy.abuse.bypass - no kicks/abuse to the player, staff-member?
+
+abuse.<AbusePermission> - use the abuse reason
 
 proxy.command.pardon - /pardon <Player>
 proxy.command.pardonId - /pardonId <AbuseId>
 proxy.pardon.notify - Get pardon messages
+
+proxy.command.checkAbuse - /checkAbuse <AbuseId>
+
+proxy.command.kick - /kick <Player> [Reason]
+
+------------------------------------------------------------------------------
+proxy.join.full - join network when max player amount is reached
