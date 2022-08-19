@@ -44,7 +44,7 @@ public class UUIDFetcher {
             return UUIDFetcher.uuidCache.get(name);
         }
         try {
-            final HttpURLConnection connection = (HttpURLConnection)new URL(String.format("https://api.mojang.com/users/profiles/minecraft/%s?at=%d", name, timestamp / 1000L)).openConnection();
+            final HttpURLConnection connection = (HttpURLConnection)new URL(String.format(UUID_URL, name, timestamp / 1000L)).openConnection();
             connection.setReadTimeout(5000);
             final UUIDFetcher data = (UUIDFetcher)UUIDFetcher.gson.fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), (Class)UUIDFetcher.class);
             UUIDFetcher.uuidCache.put(name, data.id);
@@ -66,7 +66,7 @@ public class UUIDFetcher {
             return UUIDFetcher.nameCache.get(uuid);
         }
         try {
-            final HttpURLConnection connection = (HttpURLConnection)new URL(String.format("https://api.mojang.com/user/profiles/%s/names", UUIDTypeAdapter.fromUUID(uuid))).openConnection();
+            final HttpURLConnection connection = (HttpURLConnection)new URL(String.format(NAME_URL, UUIDTypeAdapter.fromUUID(uuid))).openConnection();
             connection.setReadTimeout(5000);
             final UUIDFetcher[] nameHistory = (UUIDFetcher[])UUIDFetcher.gson.fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), (Class)UUIDFetcher[].class);
             final UUIDFetcher currentNameData = nameHistory[nameHistory.length - 1];

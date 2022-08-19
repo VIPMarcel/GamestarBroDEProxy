@@ -5,7 +5,7 @@ import java.util.List;
 public class Abuse {
 
     private String abuseReason;
-    private String abuseLevelNeed;
+    private String abusePermissionNeed;
     private int abuseId;
 
     private List<String> abuseDurations;
@@ -21,12 +21,12 @@ public class Abuse {
         this.abuseReason = abuseReason;
     }
 
-    public String getAbuseLevelNeed() {
-        return this.abuseLevelNeed;
+    public String getAbusePermissionNeed() {
+        return this.abusePermissionNeed;
     }
 
-    public void setAbuseLevelNeed(String abuseLevelNeed) {
-        this.abuseLevelNeed = abuseLevelNeed;
+    public void setAbusePermissionNeed(String abusePermissionNeed) {
+        this.abusePermissionNeed = abusePermissionNeed;
     }
 
     public int getAbuseId() {

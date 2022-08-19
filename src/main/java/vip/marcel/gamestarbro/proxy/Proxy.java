@@ -3,9 +3,12 @@ package vip.marcel.gamestarbro.proxy;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import vip.marcel.gamestarbro.proxy.commands.AbuseCommand;
+import vip.marcel.gamestarbro.proxy.commands.PardonCommand;
+import vip.marcel.gamestarbro.proxy.commands.PardonIdCommand;
 import vip.marcel.gamestarbro.proxy.utils.database.MySQL;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseBans;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseMutes;
@@ -14,6 +17,7 @@ import vip.marcel.gamestarbro.proxy.utils.database.abuse.MuteAbuse;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 import vip.marcel.gamestarbro.proxy.utils.managers.AbuseManager;
+import vip.marcel.gamestarbro.proxy.utils.managers.AbuseTimeManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.ConfigManager;
 
 import java.util.List;
@@ -30,6 +34,7 @@ public final class Proxy extends Plugin {
 
     private List<String> blacklistedWords;
     private List<UUID> blacklistedUUIDs, whitelistedUUIDs;
+    private List<ProxiedPlayer> staffNotifyToggle;
 
     private String lobbyServerName, devServerName, bauServerName;
     private int serverSlots, fakePlayers;
@@ -46,6 +51,7 @@ public final class Proxy extends Plugin {
     private AllAbuseMutes allAbuseMutes;
 
     private ConfigManager configManager;
+    private AbuseTimeManager abuseTimeManager;
     private AbuseManager abuseManager;
 
     @Override
@@ -71,8 +77,13 @@ public final class Proxy extends Plugin {
         this.blacklistedWords = Lists.newArrayList();
         this.blacklistedUUIDs = Lists.newArrayList();
         this.whitelistedUUIDs = Lists.newArrayList();
+        this.staffNotifyToggle = Lists.newArrayList();
         this.abuseReasons = Maps.newHashMap();
         this.abuseIds = Maps.newHashMap();
+
+        this.configManager = new ConfigManager(this);
+        this.abuseTimeManager = new AbuseTimeManager(this);
+        this.abuseManager = new AbuseManager(this);
 
         this.mySQL = new MySQL(this);
         this.mySQL.connect();
@@ -81,11 +92,10 @@ public final class Proxy extends Plugin {
         this.allAbuseBans = new AllAbuseBans(this);
         this.allAbuseMutes = new AllAbuseMutes(this);
 
-        this.configManager = new ConfigManager(this);
-        this.abuseManager = new AbuseManager(this);
-
         final PluginManager pluginManager = ProxyServer.getInstance().getPluginManager();
-        pluginManager.registerCommand(this, new AbuseCommand(this, "abuse"));
+        pluginManager.registerCommand(this, new AbuseCommand(this, "abuse", "proxy.command.abuse"));
+        pluginManager.registerCommand(this, new PardonCommand(this, "pardon", "proxy.command.pardon"));
+        pluginManager.registerCommand(this, new PardonIdCommand(this, "pardonId", "proxy.command.pardonId"));
     }
 
     public MySQL getMySQL() {
@@ -110,6 +120,10 @@ public final class Proxy extends Plugin {
 
     public ConfigManager getConfigManager() {
         return this.configManager;
+    }
+
+    public AbuseTimeManager getAbuseTimeManager() {
+        return this.abuseTimeManager;
     }
 
     public AbuseManager getAbuseManager() {
@@ -162,6 +176,10 @@ public final class Proxy extends Plugin {
 
     public void setWhitelistedUUIDs(List<UUID> whitelistedUUIDs) {
         this.whitelistedUUIDs = whitelistedUUIDs;
+    }
+
+    public List<ProxiedPlayer> getStaffNotifyToggle() {
+        return this.staffNotifyToggle;
     }
 
     public String getLobbyServerName() {

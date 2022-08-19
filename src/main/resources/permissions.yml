@@ -1,0 +1,6 @@
+proxy.command.abuse - /abuse <Player> <AbuseNumber>
+proxy.abuse.notify - Get abuse messages
+
+proxy.command.pardon - /pardon <Player>
+proxy.command.pardonId - /pardonId <AbuseId>
+proxy.pardon.notify - Get pardon messages

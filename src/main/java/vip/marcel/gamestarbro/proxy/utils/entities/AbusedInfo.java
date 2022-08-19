@@ -5,7 +5,7 @@ import java.util.UUID;
 public class AbusedInfo {
 
     private UUID uuid;
-    private UUID abusedBy;
+    private String abusedByName;
     private String abuseReason;
     private String abuseId;
     private long abuseCreated;
@@ -22,12 +22,12 @@ public class AbusedInfo {
         this.uuid = uuid;
     }
 
-    public UUID getAbusedBy() {
-        return this.abusedBy;
+    public String getAbusedByName() {
+        return this.abusedByName;
     }
 
-    public void setAbusedBy(UUID abusedBy) {
-        this.abusedBy = abusedBy;
+    public void setAbusedByName(String abusedByName) {
+        this.abusedByName = abusedByName;
     }
 
     public String getAbuseReason() {

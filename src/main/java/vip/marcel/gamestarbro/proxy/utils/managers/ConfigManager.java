@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -12,10 +13,8 @@ import org.json.simple.parser.ParseException;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
@@ -69,11 +68,11 @@ public class ConfigManager {
             e.printStackTrace();
         }
 
-        File abuseJson = new File(this.plugin.getDataFolder().getPath() + "/abusereasons.json");
+        File abuseJson = new File(this.plugin.getDataFolder().getPath() + "/abuse-reasons.json");
         if(!abuseJson.exists()) {
             try {
-                FileWriter writer = new FileWriter("src/main/resources/abusereasons.json");
-                Files.copy(new File("src/main/resources/abusereasons.json"), abuseJson);
+                final URL resource = getClass().getClassLoader().getResource("abuse-reasons.json");
+                FileUtils.copyURLToFile(resource, abuseJson);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -125,10 +124,11 @@ public class ConfigManager {
         this.plugin.getAbuseIds().clear();
 
         JSONParser parser = new JSONParser();
+        File abuseJson = new File(this.plugin.getDataFolder().getPath() + "/abuse-reasons.json");
 
         JSONArray abuseReasons = null;
         try {
-            abuseReasons = (JSONArray) parser.parse(new FileReader(file));
+            abuseReasons = (JSONArray) parser.parse(new FileReader(abuseJson));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
@@ -140,7 +140,7 @@ public class ConfigManager {
 
             Abuse abuseEntity = new Abuse();
             abuseEntity.setAbuseReason((String) abuse.get("AbuseReason"));
-            abuseEntity.setAbuseLevelNeed((String) abuse.get("AbuseLevel"));
+            abuseEntity.setAbusePermissionNeed((String) abuse.get("AbusePermission"));
             abuseEntity.setAbuseId(Integer.parseInt(String.valueOf(abuse.get("AbuseId"))));
 
             JSONArray abuseTimes = (JSONArray) abuse.get("Times");

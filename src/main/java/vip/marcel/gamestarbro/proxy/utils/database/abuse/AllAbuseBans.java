@@ -63,7 +63,7 @@ public class AllAbuseBans {
             try {
                 PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("INSERT INTO AllAbuseBans(UUID, AbusedBy, AbuseReason, AbuseId, AbuseCreated, AbuseEnd) VALUES (?, ?, ?, ?, ?, ?)");
                 statement.setString(1, abuse.getUuid().toString());
-                statement.setString(2, abuse.getAbusedBy().toString());
+                statement.setString(2, abuse.getAbusedByName());
                 statement.setString(3, abuse.getAbuseReason());
                 statement.setString(4, abuse.getAbuseId());
                 statement.setLong(5, abuse.getAbuseCreated());
@@ -128,7 +128,7 @@ public class AllAbuseBans {
 
                     ResultSet resultSet = statement.executeQuery();
                     while(resultSet.next())
-                        abusedInfo.setAbusedBy(UUID.fromString(resultSet.getString("AbusedBy")));
+                        abusedInfo.setAbusedByName(resultSet.getString("AbusedBy"));
 
                     statement.close();
                     resultSet.close();

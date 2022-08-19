@@ -13,3 +13,7 @@ MySQL Tables:
 
 Config-Boolean:
   IP-Bans: false
+
+
+
+  /pardonId <AbuseId>

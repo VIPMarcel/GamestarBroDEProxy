@@ -33,13 +33,30 @@ public class BanAbuse {
         return false;
     }
 
+    public boolean isBanned(String abuseId) {
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE AbuseId = ?");
+            statement.setString(1, abuseId);
+
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next())
+                return (resultSet.getString("AbuseId") != null);
+
+            statement.close();
+            resultSet.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean createBan(AbusedInfo abuse) {
         if(!this.isBanned(abuse.getUuid())) {
 
             try {
                 PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("INSERT INTO AbuseBans(UUID, AbusedBy, AbuseReason, AbuseId, AbuseCreated, AbuseEnd) VALUES (?, ?, ?, ?, ?, ?)");
                 statement.setString(1, abuse.getUuid().toString());
-                statement.setString(2, abuse.getAbusedBy().toString());
+                statement.setString(2, abuse.getAbusedByName());
                 statement.setString(3, abuse.getAbuseReason());
                 statement.setString(4, abuse.getAbuseId());
                 statement.setLong(5, abuse.getAbuseCreated());
@@ -88,7 +105,7 @@ public class BanAbuse {
 
                     ResultSet resultSet = statement.executeQuery();
                     while(resultSet.next())
-                        abusedInfo.setAbusedBy(UUID.fromString(resultSet.getString("AbusedBy")));
+                        abusedInfo.setAbusedByName(resultSet.getString("AbusedBy"));
 
                     statement.close();
                     resultSet.close();
@@ -149,6 +166,99 @@ public class BanAbuse {
                 try {
                     PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE UUID = ?");
                     statement.setString(1, uuid.toString());
+
+                    ResultSet resultSet = statement.executeQuery();
+                    while(resultSet.next())
+                        abusedInfo.setAbuseExpires(resultSet.getLong("AbuseEnd"));
+
+                    statement.close();
+                    resultSet.close();
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return abusedInfo;
+        }
+
+        return null;
+    }
+
+    public AbusedInfo getAbuse(String abuseId) {
+        AbusedInfo abusedInfo = new AbusedInfo();
+
+        if(isBanned(abuseId)) {
+
+            abusedInfo.setAbuseId(abuseId);
+
+            {
+                try {
+                    PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE AbuseId = ?");
+                    statement.setString(1, abuseId);
+
+                    ResultSet resultSet = statement.executeQuery();
+                    while(resultSet.next())
+                        abusedInfo.setUuid(UUID.fromString(resultSet.getString("UUID")));
+
+                    statement.close();
+                    resultSet.close();
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            {
+                try {
+                    PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE AbuseId = ?");
+                    statement.setString(1, abuseId);
+
+                    ResultSet resultSet = statement.executeQuery();
+                    while(resultSet.next())
+                        abusedInfo.setAbusedByName(resultSet.getString("AbusedBy"));
+
+                    statement.close();
+                    resultSet.close();
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            {
+                try {
+                    PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE AbuseId = ?");
+                    statement.setString(1, abuseId);
+
+                    ResultSet resultSet = statement.executeQuery();
+                    while(resultSet.next())
+                        abusedInfo.setAbuseReason(resultSet.getString("AbuseReason"));
+
+                    statement.close();
+                    resultSet.close();
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            {
+                try {
+                    PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE AbuseId = ?");
+                    statement.setString(1, abuseId);
+
+                    ResultSet resultSet = statement.executeQuery();
+                    while(resultSet.next())
+                        abusedInfo.setAbuseCreated(resultSet.getLong("AbuseCreated"));
+
+                    statement.close();
+                    resultSet.close();
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            {
+                try {
+                    PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AbuseBans WHERE AbuseId = ?");
+                    statement.setString(1, abuseId);
 
                     ResultSet resultSet = statement.executeQuery();
                     while(resultSet.next())
