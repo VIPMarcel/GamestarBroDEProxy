@@ -1,5 +1,6 @@
 package vip.marcel.gamestarbro.proxy.utils.database.abuse;
 
+import com.google.common.collect.Lists;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 
@@ -59,14 +60,14 @@ public class AllAbuseMutes {
     }
 
     public List<String> getAllAbuseIds() {
-        List<String> output = new ArrayList<>();
+        LinkedList<String> output = Lists.newLinkedList();
 
         try {
-            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AllAbuseMutes");
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AllAbuseMutes ORDER BY id");
             ResultSet resultSet = statement.executeQuery();
 
             while(resultSet.next()) {
-                output.add(resultSet.getString("AbuseId"));
+                output.addLast(resultSet.getString("AbuseId"));
             }
 
             resultSet.close();

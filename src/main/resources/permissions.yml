@@ -9,6 +9,8 @@ proxy.command.pardonId - /pardonId <AbuseId>
 proxy.pardon.notify - Get pardon messages
 
 proxy.command.checkAbuse - /checkAbuse <AbuseId>
+proxy.command.checkAbuses - /checkAbuses <Player>
+proxy.command.chatLog - /chatLog <AbuseId>
 
 proxy.command.kick - /kick <Player> [Reason]
 

@@ -1,17 +1,22 @@
 package vip.marcel.gamestarbro.proxy.commands;
 
+import com.google.common.collect.Lists;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class PardonCommand extends Command {
+public class PardonCommand extends Command implements TabExecutor {
 
     private final Proxy plugin;
 
@@ -134,6 +139,19 @@ public class PardonCommand extends Command {
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7AbuseType §8» §e" + pardonTypeName);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7Begnadigt von §8» §e" + pardonedByName);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] arguments) {
+        List<String> output = Lists.newArrayList();
+
+        if(arguments.length == 1) {
+            for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {
+                output.add(players.getName());
+            }
+        }
+
+        return output.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

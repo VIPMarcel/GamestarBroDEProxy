@@ -2,19 +2,26 @@ package vip.marcel.gamestarbro.proxy;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import dev.simplix.protocolize.api.Direction;
+import dev.simplix.protocolize.api.Protocolize;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.protocol.packet.ClientChat;
 import vip.marcel.gamestarbro.proxy.commands.*;
+import vip.marcel.gamestarbro.proxy.listener.ChatListener;
+import vip.marcel.gamestarbro.proxy.listener.ChatPacketListener;
 import vip.marcel.gamestarbro.proxy.listener.LoginListener;
+import vip.marcel.gamestarbro.proxy.utils.database.DatabasePlayers;
 import vip.marcel.gamestarbro.proxy.utils.database.MySQL;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseBans;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseMutes;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.BanAbuse;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.MuteAbuse;
+import vip.marcel.gamestarbro.proxy.utils.database.chatlog.ChatLog;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 import vip.marcel.gamestarbro.proxy.utils.managers.AbuseManager;
@@ -22,11 +29,11 @@ import vip.marcel.gamestarbro.proxy.utils.managers.AbuseTimeManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.ConfigManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.PermissionsManager;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Proxy extends Plugin {
 
@@ -49,11 +56,16 @@ public final class Proxy extends Plugin {
     private Map<String, Abuse> abuseReasons;
     private Map<Integer, Abuse> abuseIds;
 
+    private Map<UUID, LinkedList<String>> sendChatMessages;
+
     private MySQL mySQL;
     private BanAbuse banAbuse;
     private MuteAbuse muteAbuse;
     private AllAbuseBans allAbuseBans;
     private AllAbuseMutes allAbuseMutes;
+    private DatabasePlayers databasePlayers;
+
+    private ChatLog chatLog;
 
     private ConfigManager configManager;
     private AbuseTimeManager abuseTimeManager;
@@ -87,6 +99,8 @@ public final class Proxy extends Plugin {
         this.abuseReasons = Maps.newHashMap();
         this.abuseIds = Maps.newHashMap();
 
+        this.sendChatMessages = Maps.newHashMap();
+
         this.configManager = new ConfigManager(this);
         this.abuseTimeManager = new AbuseTimeManager(this);
         this.abuseManager = new AbuseManager(this);
@@ -98,6 +112,9 @@ public final class Proxy extends Plugin {
         this.muteAbuse = new MuteAbuse(this);
         this.allAbuseBans = new AllAbuseBans(this);
         this.allAbuseMutes = new AllAbuseMutes(this);
+        this.databasePlayers = new DatabasePlayers(this);
+
+        this.chatLog = new ChatLog(this);
 
         this.luckPerms = LuckPermsProvider.get();
 
@@ -106,9 +123,14 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new PardonCommand(this, "pardon", "proxy.command.pardon"));
         pluginManager.registerCommand(this, new PardonIdCommand(this, "pardonId", "proxy.command.pardonId"));
         pluginManager.registerCommand(this, new CheckAbuseCommand(this, "checkAbuse", "proxy.command.checkAbuse"));
+        pluginManager.registerCommand(this, new CheckAbusesCommand(this, "checkAbuses", "proxy.command.checkAbuses"));
         pluginManager.registerCommand(this, new KickCommand(this, "kick", "proxy.command.kick"));
+        pluginManager.registerCommand(this, new ChatLogCommand(this, "chatlog", "proxy.command.chatlog"));
 
         pluginManager.registerListener(this, new LoginListener(this));
+        pluginManager.registerListener(this, new ChatListener(this));
+
+        Protocolize.listenerProvider().registerListener(new ChatPacketListener(this, ClientChat.class, Direction.UPSTREAM, 0));
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
@@ -137,6 +159,14 @@ public final class Proxy extends Plugin {
 
     public AllAbuseMutes getAllAbuseMutes() {
         return this.allAbuseMutes;
+    }
+
+    public DatabasePlayers getDatabasePlayers() {
+        return this.databasePlayers;
+    }
+
+    public ChatLog getChatLog() {
+        return this.chatLog;
     }
 
     public ConfigManager getConfigManager() {
@@ -177,6 +207,10 @@ public final class Proxy extends Plugin {
 
     public Map<Integer, Abuse> getAbuseIds() {
         return this.abuseIds;
+    }
+
+    public Map<UUID, LinkedList<String>> getSendChatMessages() {
+        return this.sendChatMessages;
     }
 
     public List<String> getBlacklistedWords() {

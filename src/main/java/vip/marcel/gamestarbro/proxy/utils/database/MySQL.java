@@ -58,6 +58,18 @@ public class MySQL {
                 statement.close();
             }
 
+            {
+                PreparedStatement statement = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS ChatLog(id INT AUTO_INCREMENT PRIMARY KEY, UUID TEXT, AbuseId TEXT, Message TEXT)");
+                statement.executeUpdate();
+                statement.close();
+            }
+
+            {
+                PreparedStatement statement = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS Players(id INT AUTO_INCREMENT PRIMARY KEY, UUID TEXT, PlayerName TEXT, IPAdress TEXT, AbuseLevel INT, KicksAmount INT, PlayTime TEXT, Coins INT, FirstJoin TEXT, LastSeen TEXT)");
+                statement.executeUpdate();
+                statement.close();
+            }
+
         } catch(SQLException e) {
             e.printStackTrace();
         }

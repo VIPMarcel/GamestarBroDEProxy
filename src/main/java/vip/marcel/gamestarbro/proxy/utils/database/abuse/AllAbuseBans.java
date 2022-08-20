@@ -1,5 +1,6 @@
 package vip.marcel.gamestarbro.proxy.utils.database.abuse;
 
+import com.google.common.collect.Lists;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 
@@ -7,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,16 +38,16 @@ public class AllAbuseBans {
     }
 
     public List<String> getAllAbuseIds(UUID uuid) {
-        List<String> output = new ArrayList<>();
+        LinkedList<String> output = Lists.newLinkedList();
 
         try {
-            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AllAbuseBans WHERE UUID = ?");
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM AllAbuseBans WHERE UUID = ? ORDER BY id");
             statement.setString(1, uuid.toString());
 
             ResultSet resultSet = statement.executeQuery();
 
             while(resultSet.next()) {
-                output.add(resultSet.getString("AbuseId"));
+                output.addLast(resultSet.getString("AbuseId"));
             }
 
             resultSet.close();

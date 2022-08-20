@@ -1,7 +1,6 @@
 package vip.marcel.gamestarbro.proxy.commands;
 
 import com.google.common.collect.Lists;
-import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -74,20 +73,30 @@ public class AbuseCommand extends Command implements TabExecutor {
 
         final Abuse abuse = this.plugin.getAbuseIds().get(abuseId);
 
-        //TODO: Do Player, files
-        final int testAbuseLevel = 0;
-
         if(!sender.hasPermission(abuse.getAbusePermissionNeed())) {
             sender.sendMessage(this.plugin.getPrefix() + "§cDu darfst diese §eAbuseId §cnicht benutzen. Bitte ein §ehöheres Teammitglied §cum Hilfe.");
             return;
         }
 
-        if(this.plugin.hasPermission(uuid, "proxy.abuse.bypass")) {
-            sender.sendMessage(this.plugin.getPrefix() + "§cDu darfst keine §eTeammitglieder §cbestrafen.");
-            return;
+        if(sender instanceof ProxiedPlayer player) {
+            if(this.plugin.hasPermission(uuid, "proxy.abuse.bypass")) {
+                player.sendMessage(this.plugin.getPrefix() + "§cDu darfst keine §eTeammitglieder §cbestrafen.");
+                return;
+            }
         }
 
-        final String abuseDurationString = abuse.getAbuseDurations().get(testAbuseLevel);
+        if(!this.plugin.getDatabasePlayers().doesPlayerExists(uuid)) {
+            this.plugin.getDatabasePlayers().createPlayer(uuid);
+            sender.sendMessage(this.plugin.getPrefix() + "Der Spieler §e" + name + " §7war noch nie auf dem Server.");
+        }
+
+        int playerAbuseLevel = this.plugin.getDatabasePlayers().getAbuseLevel(uuid);
+
+        if(playerAbuseLevel >= abuse.getAbuseDurations().size()) {
+            playerAbuseLevel = abuse.getAbuseDurations().size() - 1;
+        }
+
+        final String abuseDurationString = abuse.getAbuseDurations().get(playerAbuseLevel);
         final int duration = Integer.parseInt(abuseDurationString.split(" ")[0]);
         final String format = abuseDurationString.split(" ")[1];
         final String abuseTypeString = abuseDurationString.split(" ")[2];
@@ -144,7 +153,10 @@ public class AbuseCommand extends Command implements TabExecutor {
         abusedInfo.setAbuseExpires(abuseExpiresMillis);
 
         this.plugin.getAbuseManager().createAbuse(abuseType, abusedInfo);
+        this.plugin.getDatabasePlayers().setAbuseLevel(uuid, this.plugin.getDatabasePlayers().getAbuseLevel(uuid) + 1);
 
+        this.plugin.getChatLog().logChatMessages(uuid, abusedInfo.getAbuseId(), 20);
+        sender.sendMessage(this.plugin.getTeamPrefix() + "§eChatLogs der letzten 20 Nachrichten werden erstellt..");
 
 
         final ProxiedPlayer target = ProxyServer.getInstance().getPlayer(uuid);

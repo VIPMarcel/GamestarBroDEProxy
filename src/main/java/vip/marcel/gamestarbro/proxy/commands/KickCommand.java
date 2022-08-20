@@ -60,6 +60,8 @@ public class KickCommand extends Command {
             kickedByName = "Automatisch | Server";
         }
 
+        this.plugin.getDatabasePlayers().setKicksAmount(target.getUniqueId(), this.plugin.getDatabasePlayers().getKicksAmount(target.getUniqueId()) + 1);
+
         target.disconnect("\n§8§m--------------------------------------------\n" +
                 "§cDu wurdest vom §6GamestarBro.de Netzwerk §cgeworfen.\n\n" +
 

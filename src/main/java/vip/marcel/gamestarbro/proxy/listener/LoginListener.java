@@ -50,7 +50,8 @@ public record LoginListener(Proxy plugin) implements Listener {
                 }
             }
 
-            //TODO: Create player database
+            this.plugin.getDatabasePlayers().createPlayer(uuid);
+            this.plugin.getDatabasePlayers().setIPAdress(uuid, event.getConnection().getSocketAddress().toString().split(":")[0]);
 
             if(ProxyServer.getInstance().getPlayers().size() + this.plugin.getFakePlayers() >= this.plugin.getServerSlots()) {
                 if(!this.plugin.hasPermission(uuid, "proxy.join.full")) {
