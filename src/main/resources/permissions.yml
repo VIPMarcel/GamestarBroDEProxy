@@ -16,3 +16,5 @@ proxy.command.kick - /kick <Player> [Reason]
 
 ------------------------------------------------------------------------------
 proxy.join.full - join network when max player amount is reached
+proxy.staff - player is a staff member
+proxy.join.maintenance - join while maintenance is enabled and player is not whitelisted

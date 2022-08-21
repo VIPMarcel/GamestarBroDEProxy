@@ -51,7 +51,7 @@ public class ConfigManager {
                 this.configuration.set("Server.Dev-Server", "Development");
                 this.configuration.set("Server.Slots", 75);
                 this.configuration.set("Server.FakePlayers", 0);
-                this.configuration.set("Server.Maintenance.State", false);
+                this.configuration.set("Server.Maintenance.State", true);
                 this.configuration.set("Server.Maintenance.Reason", "");
                 this.configuration.set("Server.Maintenance.Allowed-UUIDs", Arrays.asList("d0a9dabf-7189-44fd-ae2b-04ac56de405d"));
                 this.configuration.set("Server.Modt.1", "&6GamestarBro.de &8➼ &7Dein Netzwerk &8• &a1.19.x");

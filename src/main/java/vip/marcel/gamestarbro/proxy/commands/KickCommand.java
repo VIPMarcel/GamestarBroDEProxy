@@ -36,9 +36,11 @@ public class KickCommand extends Command {
             return;
         }
 
-        if(target.hasPermission("proxy.abuse.bypass")) {
-            sender.sendMessage(this.plugin.getPrefix() + "§cDu darfst keine §eTeammitglieder §ckicken.");
-            return;
+        if(sender instanceof ProxiedPlayer player) {
+            if(target.hasPermission("proxy.abuse.bypass")) {
+                player.sendMessage(this.plugin.getPrefix() + "§cDu darfst keine §eTeammitglieder §ckicken.");
+                return;
+            }
         }
 
         String reason = "";

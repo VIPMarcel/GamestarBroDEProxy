@@ -7,14 +7,13 @@ import dev.simplix.protocolize.api.Protocolize;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import vip.marcel.gamestarbro.proxy.commands.*;
-import vip.marcel.gamestarbro.proxy.listener.ChatListener;
-import vip.marcel.gamestarbro.proxy.listener.ChatPacketListener;
-import vip.marcel.gamestarbro.proxy.listener.LoginListener;
+import vip.marcel.gamestarbro.proxy.listener.*;
 import vip.marcel.gamestarbro.proxy.utils.database.DatabasePlayers;
 import vip.marcel.gamestarbro.proxy.utils.database.MySQL;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseBans;
@@ -45,6 +44,7 @@ public final class Proxy extends Plugin {
     private List<String> blacklistedWords;
     private List<UUID> blacklistedUUIDs, whitelistedUUIDs;
     private List<ProxiedPlayer> staffNotifyToggle;
+    private List<ProxiedPlayer> onlineStaff;
 
     private String lobbyServerName, devServerName, bauServerName;
     private int serverSlots, fakePlayers;
@@ -57,6 +57,7 @@ public final class Proxy extends Plugin {
     private Map<Integer, Abuse> abuseIds;
 
     private Map<UUID, LinkedList<String>> sendChatMessages;
+    private Map<ProxiedPlayer, ServerInfo> joinMe;
 
     private MySQL mySQL;
     private BanAbuse banAbuse;
@@ -96,10 +97,12 @@ public final class Proxy extends Plugin {
         this.blacklistedUUIDs = Lists.newArrayList();
         this.whitelistedUUIDs = Lists.newArrayList();
         this.staffNotifyToggle = Lists.newArrayList();
+        this.onlineStaff = Lists.newArrayList();
         this.abuseReasons = Maps.newHashMap();
         this.abuseIds = Maps.newHashMap();
 
         this.sendChatMessages = Maps.newHashMap();
+        this.joinMe = Maps.newHashMap();
 
         this.configManager = new ConfigManager(this);
         this.abuseTimeManager = new AbuseTimeManager(this);
@@ -129,6 +132,12 @@ public final class Proxy extends Plugin {
 
         pluginManager.registerListener(this, new LoginListener(this));
         pluginManager.registerListener(this, new ChatListener(this));
+        pluginManager.registerListener(this, new ProxyPingListener(this));
+        pluginManager.registerListener(this, new ServerKickListener(this));
+        pluginManager.registerListener(this, new ServerConnectListener(this));
+        pluginManager.registerListener(this, new ServerConnectedListener(this));
+        pluginManager.registerListener(this, new PlayerDisconnectListener(this));
+        pluginManager.registerListener(this, new ServerDisconnectListener(this));
 
         Protocolize.listenerProvider().registerListener(new ChatPacketListener(this, ClientChat.class, Direction.UPSTREAM, 0));
     }
@@ -213,6 +222,10 @@ public final class Proxy extends Plugin {
         return this.sendChatMessages;
     }
 
+    public Map<ProxiedPlayer, ServerInfo> getJoinMe() {
+        return this.joinMe;
+    }
+
     public List<String> getBlacklistedWords() {
         return this.blacklistedWords;
     }
@@ -239,6 +252,10 @@ public final class Proxy extends Plugin {
 
     public List<ProxiedPlayer> getStaffNotifyToggle() {
         return this.staffNotifyToggle;
+    }
+
+    public List<ProxiedPlayer> getOnlineStaff() {
+        return this.onlineStaff;
     }
 
     public String getLobbyServerName() {
