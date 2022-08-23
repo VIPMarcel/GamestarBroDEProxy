@@ -8,7 +8,7 @@
     ]
   },
   {
-    "AbuseReason": "Clientmods",
+    "AbuseReason": "Unerlaubte Clientmodifikationen / Mods",
     "AbusePermission": "abuse.staff",
     "AbuseId": 1,
     "Times": [
@@ -18,13 +18,83 @@
     ]
   },
   {
-    "AbuseReason": "Werbung",
+    "AbuseReason": "Fehlerausnutzung (BugUsing)",
     "AbusePermission": "abuse.staff",
     "AbuseId": 2,
     "Times": [
+      "5 d ban",
+      "14 d ban",
+      "30 d ban"
+    ]
+  },
+  {
+    "AbuseReason": "Radikalismus",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 3,
+    "Times": [
+      "30 d ban",
+      "90 d ban",
+      "0 permanent ban"
+    ]
+  },
+  {
+    "AbuseReason": "Werbung",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 4,
+    "Times": [
+      "30 d mute",
+      "30 d ban",
+      "90 d ban"
+    ]
+  },
+  {
+    "AbuseReason": "Beleidigung",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 5,
+    "Times": [
       "7 d mute",
       "14 d mute",
-      "0 permanent mute"
+      "30 d mute"
+    ]
+  },
+  {
+    "AbuseReason": "Spam",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 6,
+    "Times": [
+      "3 h mute",
+      "12 h mute",
+      "2 d mute"
+    ]
+  },
+  {
+    "AbuseReason": "Griefing auf Claims",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 7,
+    "Times": [
+      "7 d ban",
+      "14 d ban",
+      "30 d ban"
+    ]
+  },
+  {
+    "AbuseReason": "Laggs durch Farmen/Maschienen",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 8,
+    "Times": [
+      "5 d ban",
+      "14 d ban",
+      "30 d ban"
+    ]
+  },
+  {
+    "AbuseReason": "Tpa- Fallen",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 9,
+    "Times": [
+      "5 d ban",
+      "10 d ban",
+      "14 d ban"
     ]
   }
 ]

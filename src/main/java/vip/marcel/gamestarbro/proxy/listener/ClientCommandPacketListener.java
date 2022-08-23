@@ -1,6 +1,5 @@
 package vip.marcel.gamestarbro.proxy.listener;
 
-import com.google.common.collect.Lists;
 import dev.simplix.protocolize.api.Direction;
 import dev.simplix.protocolize.api.listener.AbstractPacketListener;
 import dev.simplix.protocolize.api.listener.PacketReceiveEvent;
@@ -8,55 +7,61 @@ import dev.simplix.protocolize.api.listener.PacketSendEvent;
 import dev.simplix.protocolize.api.player.ProtocolizePlayer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.protocol.packet.ClientChat;
+import net.md_5.bungee.protocol.packet.ClientCommand;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 
 import java.util.LinkedList;
 
-public class ChatPacketListener extends AbstractPacketListener<ClientChat> {
+public class ClientCommandPacketListener extends AbstractPacketListener<ClientCommand> {
 
     private final Proxy plugin;
 
-    public ChatPacketListener(Proxy plugin, Class<ClientChat> type, Direction direction, int priority) {
+    public ClientCommandPacketListener(Proxy plugin, Class<ClientCommand> type, Direction direction, int priority) {
         super(type, direction, priority);
         this.plugin = plugin;
     }
 
     @Override
-    public void packetReceive(PacketReceiveEvent<ClientChat> event) {
-        final ClientChat packet = event.packet();
+    public void packetReceive(PacketReceiveEvent<ClientCommand> event) {
+        final ClientCommand packet = event.packet();
         final ProtocolizePlayer protocolizePlayer = event.player();
         final ProxiedPlayer player = protocolizePlayer.handle();
 
-        if(packet.getMessage().startsWith("/")) {
-            return;
+        try {
+            if(packet.getCommand().startsWith("msg ") |
+                    packet.getCommand().startsWith("whisper ") |
+                    packet.getCommand().startsWith("tell ") |
+                    packet.getCommand().startsWith("w ") |
+                    packet.getCommand().startsWith("reply ") |
+                    packet.getCommand().startsWith("r ")) {
+
+                // do async?
+                if(this.plugin.getAbuseManager().isAbuse(AbuseType.MUTE, player.getUniqueId())) {
+                    event.cancelled(true);
+                    handlePlayerMute(player);
+                } else {
+                    addToPlayerChatLogs(player, packet.getCommand());
+                    return;
+                }
+
+            }
+        } catch (UnsupportedOperationException e) {
+            ProxyServer.getInstance().getConsole().sendMessage("Packet ClientCommand: " + e.getMessage());
         }
 
-        event.cancelled(true);
-
-        ProxyServer.getInstance().getScheduler().runAsync(this.plugin, () -> {
-            if(this.plugin.getAbuseManager().isAbuse(AbuseType.MUTE, player.getUniqueId())) {
-                handlePlayerMute(player);
-            } else {
-
-                //TODO: Check spam, blackwords, server-werbung
-
-                addToPlayerChatLogs(player, packet.getMessage());
-                protocolizePlayer.sendPacketToServer(packet);
-            }
-        });
+        //TODO: Check reports
 
     }
 
     @Override
-    public void packetSend(PacketSendEvent<ClientChat> event) {
+    public void packetSend(PacketSendEvent<ClientCommand> event) {
     }
 
     private void addToPlayerChatLogs(ProxiedPlayer player, String message) {
         if(!this.plugin.getSendChatMessages().containsKey(player.getUniqueId())) {
-            this.plugin.getSendChatMessages().put(player.getUniqueId(), Lists.newLinkedList());
+            this.plugin.getSendChatMessages().put(player.getUniqueId(), new LinkedList<>());
         }
 
         final LinkedList<String> messages = this.plugin.getSendChatMessages().get(player.getUniqueId());

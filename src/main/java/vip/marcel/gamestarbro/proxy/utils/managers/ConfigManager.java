@@ -1,7 +1,6 @@
 package vip.marcel.gamestarbro.proxy.utils.managers;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -13,7 +12,9 @@ import org.json.simple.parser.ParseException;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,7 @@ public class ConfigManager {
                 this.configuration.set("Server.Modt.2", "&8  » &aWir haben geöffnet &7+ &etolle Preise");
                 this.configuration.set("Server.Modt.Maintenance", "&8  » &cWir befinden uns in Wartungsarbeiten!");
                 this.configuration.set("Server.Blacklisted-UUIDs", Lists.newArrayList());
+                this.configuration.set("Server.Blacklisted-IPs", Lists.newArrayList());
                 this.configuration.set("Server.Blacklisted-Words", Lists.newArrayList());
                 this.saveConfig();
 
@@ -94,6 +96,7 @@ public class ConfigManager {
 
             this.plugin.getBlacklistedWords().clear();
             this.plugin.getBlacklistedUUIDs().clear();
+            this.plugin.getBlacklistedIPs().clear();
             this.plugin.getWhitelistedUUIDs().clear();
 
             if(!this.configuration.getStringList("Server.Maintenance.Allowed-UUIDs").isEmpty()) {
@@ -105,6 +108,12 @@ public class ConfigManager {
             if(!this.configuration.getStringList("Server.Blacklisted-UUIDs").isEmpty()) {
                 this.configuration.getStringList("Server.Blacklisted-UUIDs").forEach(uuid -> {
                     this.plugin.getBlacklistedUUIDs().add(UUID.fromString(uuid));
+                });
+            }
+
+            if(!this.configuration.getStringList("Server.Blacklisted-IPs").isEmpty()) {
+                this.configuration.getStringList("Server.Blacklisted-IPs").forEach(ip -> {
+                    this.plugin.getBlacklistedIPs().add(ip);
                 });
             }
 

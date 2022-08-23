@@ -32,7 +32,26 @@ public class CheckAbusesCommand extends Command implements TabExecutor {
     public void execute(CommandSender sender, String[] arguments) {
 
         if(arguments.length == 0) {
+
+            int banAmount = this.plugin.getAllAbuseBans().getAllAbuseIds().size();
+            int banActiveAmount = this.plugin.getBanAbuse().getAllAbuseIds().size();
+
+            int muteAmount = this.plugin.getAllAbuseMutes().getAllAbuseIds().size();
+            int muteActiveAmount = this.plugin.getMuteAbuse().getAllAbuseIds().size();
+
             sender.sendMessage(this.plugin.getPrefix() + "Du musst einen §eSpielernamen §7angeben, um seine Strafen zu sehen.");
+
+            if(banAmount == 1) {
+                sender.sendMessage(this.plugin.getPrefix() + "Derzeit ist §e" + banAmount + " §7Bann registriert und §e" + banActiveAmount + " §7aktiv.");
+            } else {
+                sender.sendMessage(this.plugin.getPrefix() + "Derzeit sind §e" + banAmount + " §7Banns registriert und §e" + banActiveAmount + " §7aktiv.");
+            }
+
+            if(muteAmount == 1) {
+                sender.sendMessage(this.plugin.getPrefix() + "Derzeit ist §e" + muteAmount + " §7Mute registriert und §e" + muteActiveAmount + " §7aktiv.");
+            } else {
+                sender.sendMessage(this.plugin.getPrefix() + "Derzeit sind §e" + muteAmount + " §7Mutes registriert und §e" + muteActiveAmount + " §7aktiv.");
+            }
             return;
         }
 

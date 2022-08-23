@@ -12,6 +12,7 @@ import vip.marcel.gamestarbro.proxy.Proxy;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 public record ProxyPingListener(Proxy plugin) implements Listener {
 
@@ -23,6 +24,12 @@ public record ProxyPingListener(Proxy plugin) implements Listener {
         final String motd1 = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfigManager().getConfiguration().getString("Server.Modt.1"));
         final String motd2 = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfigManager().getConfiguration().getString("Server.Modt.2"));
         final String motdMaintenance = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfigManager().getConfiguration().getString("Server.Modt.Maintenance"));
+
+        if(this.plugin.getBlacklistedIPs().contains(event.getConnection().getSocketAddress().toString().split(":")[0].replaceFirst("/", ""))) {
+            ping.setVersion(new ServerPing.Protocol("", Short.MAX_VALUE));
+            ping.setDescription("§4Can't connect to server");
+            return;
+        }
 
         if(this.plugin.isMaintenance()) {
             ping.setVersion(new ServerPing.Protocol("§4✘ §8┃ §cWartungsarbeiten", Short.MAX_VALUE));

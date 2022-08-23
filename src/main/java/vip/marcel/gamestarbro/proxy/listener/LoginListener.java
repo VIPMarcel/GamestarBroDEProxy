@@ -18,6 +18,13 @@ public record LoginListener(Proxy plugin) implements Listener {
 
         event.registerIntent(this.plugin);
 
+        if(this.plugin.getBlacklistedIPs().contains(event.getConnection().getSocketAddress().toString().split(":")[0].replaceFirst("/", ""))) {
+            event.setCancelled(true);
+            event.setCancelReason("io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: no further information:");
+            event.completeIntent(this.plugin);
+            return;
+        }
+
         if(this.plugin.getBlacklistedUUIDs().contains(uuid)) {
             event.setCancelled(true);
             event.setCancelReason("io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: no further information:");
@@ -51,7 +58,7 @@ public record LoginListener(Proxy plugin) implements Listener {
             }
 
             this.plugin.getDatabasePlayers().createPlayer(uuid);
-            this.plugin.getDatabasePlayers().setIPAdress(uuid, event.getConnection().getSocketAddress().toString().split(":")[0]);
+            this.plugin.getDatabasePlayers().setIPAdress(uuid, event.getConnection().getSocketAddress().toString().split(":")[0].replaceFirst("/", ""));
 
             if(ProxyServer.getInstance().getPlayers().size() + this.plugin.getFakePlayers() >= this.plugin.getServerSlots()) {
                 if(!this.plugin.hasPermission(uuid, "proxy.join.full")) {

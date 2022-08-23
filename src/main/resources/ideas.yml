@@ -1,6 +1,5 @@
-config add blacklisted-IPs
-
-/listAbuses - Alle aktiven abuses (von global) mit jwl. (Spielernamen)
-
-
 LoginStreaks - jeden Tag einloggen, Coins ✪
+
+command um zu sehen wie viele den server anpingen / eingespeichert haben ^^ || oder in autobroadcast
+
+SocialSpy und CommandSpy im ClientCommandPacketListener?

@@ -12,6 +12,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.protocol.packet.ClientChat;
+import net.md_5.bungee.protocol.packet.ClientCommand;
 import vip.marcel.gamestarbro.proxy.commands.*;
 import vip.marcel.gamestarbro.proxy.listener.*;
 import vip.marcel.gamestarbro.proxy.utils.database.DatabasePlayers;
@@ -43,8 +44,10 @@ public final class Proxy extends Plugin {
 
     private List<String> blacklistedWords;
     private List<UUID> blacklistedUUIDs, whitelistedUUIDs;
+    private List<String> blacklistedIPs;
     private List<ProxiedPlayer> staffNotifyToggle;
     private List<ProxiedPlayer> onlineStaff;
+    private List<ProxiedPlayer> notifyToggle;
 
     private String lobbyServerName, devServerName, bauServerName;
     private int serverSlots, fakePlayers;
@@ -95,9 +98,11 @@ public final class Proxy extends Plugin {
     private void init() {
         this.blacklistedWords = Lists.newArrayList();
         this.blacklistedUUIDs = Lists.newArrayList();
+        this.blacklistedIPs = Lists.newArrayList();
         this.whitelistedUUIDs = Lists.newArrayList();
         this.staffNotifyToggle = Lists.newArrayList();
         this.onlineStaff = Lists.newArrayList();
+        this.notifyToggle = Lists.newArrayList();
         this.abuseReasons = Maps.newHashMap();
         this.abuseIds = Maps.newHashMap();
 
@@ -130,8 +135,58 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new KickCommand(this, "kick", "proxy.command.kick"));
         pluginManager.registerCommand(this, new ChatLogCommand(this, "chatlog", "proxy.command.chatlog"));
 
+        pluginManager.registerCommand(this, new AlertCommand(this, "alert", "proxy.command.alert"));
+        pluginManager.registerCommand(this, new AlertCommand(this, "broadcast", "proxy.command.alert"));
+        pluginManager.registerCommand(this, new BauserverCommand(this, "bauserver", "proxy.command.bauserver"));
+        pluginManager.registerCommand(this, new DevserverCommand(this, "devserver", "proxy.command.devserver"));
+        //Blacklist, BlacklistIp
+        pluginManager.registerCommand(this, new ChatClearCommand(this, "chatclear", "proxy.staff"));
+        pluginManager.registerCommand(this, new ChatClearCommand(this, "cc", "proxy.staff"));
+        pluginManager.registerCommand(this, new CoinsCommand(this, "coins"));
+        pluginManager.registerCommand(this, new CoinsCommand(this, "coin"));
+        //Help
+        //JoinMe
+        pluginManager.registerCommand(this, new LobbyCommand(this, "lobby"));
+        pluginManager.registerCommand(this, new LobbyCommand(this, "l"));
+        pluginManager.registerCommand(this, new LobbyCommand(this, "leave"));
+        pluginManager.registerCommand(this, new LobbyCommand(this, "hub"));
+        pluginManager.registerCommand(this, new LobbyCommand(this, "disconnect"));
+        //Maintenance
+        pluginManager.registerCommand(this, new NotifyToggleCommand(this, "notifytoggle", "proxy.staff"));
+        pluginManager.registerCommand(this, new NotifyToggleCommand(this, "ntoggle", "proxy.staff"));
+        pluginManager.registerCommand(this, new NotifyToggleCommand(this, "nt", "proxy.staff"));
+        pluginManager.registerCommand(this, new OnlineCommand(this, "online"));
+        pluginManager.registerCommand(this, new OnlineCommand(this, "o"));
+        pluginManager.registerCommand(this, new OnlineCommand(this, "spieler"));
+        pluginManager.registerCommand(this, new OnlineCommand(this, "players"));
+        pluginManager.registerCommand(this, new PingCommand(this, "ping"));
+        pluginManager.registerCommand(this, new PingCommand(this, "connection"));
+        //PlayerInfo
+        //Msg
+        //r
+        pluginManager.registerCommand(this, new PrivateMessageToggleCommand(this, "msgtoggle"));
+        pluginManager.registerCommand(this, new PrivateMessageToggleCommand(this, "pmtoggle"));
+        pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "reloadbungeecord", "proxy.command.reloadbungeesystem"));
+        pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "reloadbungee", "proxy.command.reloadbungeesystem"));
+        pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "greload", "proxy.command.reloadbungeesystem"));
+        //Report
+        //Reports
+        pluginManager.registerCommand(this, new StaffChatCommand(this, "staffchat", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffChatCommand(this, "teamchat", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffChatCommand(this, "tc", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffChatCommand(this, "tchat", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffOnlineCommand(this, "staffonline", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffOnlineCommand(this, "sonline", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffOnlineCommand(this, "so", "proxy.staff"));
+        pluginManager.registerCommand(this, new StaffOnlineCommand(this, "teamonline", "proxy.staff"));
+        pluginManager.registerCommand(this, new SwitchServerCommand(this, "switchserver", "proxy.staff"));
+        pluginManager.registerCommand(this, new SwitchServerCommand(this, "connect", "proxy.staff"));
+        pluginManager.registerCommand(this, new SwitchServerCommand(this, "ss", "proxy.staff"));
+        pluginManager.registerCommand(this, new WhereIsCommand(this, "whereis", "proxy.staff"));
+        //Whitelist
+
+
         pluginManager.registerListener(this, new LoginListener(this));
-        pluginManager.registerListener(this, new ChatListener(this));
         pluginManager.registerListener(this, new ProxyPingListener(this));
         pluginManager.registerListener(this, new ServerKickListener(this));
         pluginManager.registerListener(this, new ServerConnectListener(this));
@@ -139,7 +194,8 @@ public final class Proxy extends Plugin {
         pluginManager.registerListener(this, new PlayerDisconnectListener(this));
         pluginManager.registerListener(this, new ServerDisconnectListener(this));
 
-        Protocolize.listenerProvider().registerListener(new ChatPacketListener(this, ClientChat.class, Direction.UPSTREAM, 0));
+        Protocolize.listenerProvider().registerListener(new ClientChatPacketListener(this, ClientChat.class, Direction.UPSTREAM, 0));
+        Protocolize.listenerProvider().registerListener(new ClientCommandPacketListener(this, ClientCommand.class, Direction.UPSTREAM, 0));
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
@@ -242,6 +298,10 @@ public final class Proxy extends Plugin {
         this.blacklistedUUIDs = blacklistedUUIDs;
     }
 
+    public List<String> getBlacklistedIPs() {
+        return this.blacklistedIPs;
+    }
+
     public List<UUID> getWhitelistedUUIDs() {
         return this.whitelistedUUIDs;
     }
@@ -256,6 +316,10 @@ public final class Proxy extends Plugin {
 
     public List<ProxiedPlayer> getOnlineStaff() {
         return this.onlineStaff;
+    }
+
+    public List<ProxiedPlayer> getNotifyToggle() {
+        return this.notifyToggle;
     }
 
     public String getLobbyServerName() {
