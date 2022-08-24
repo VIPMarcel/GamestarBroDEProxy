@@ -13,7 +13,10 @@ public record PlayerDisconnectListener(Proxy plugin) implements Listener {
     public void onPlayerDisconnectEvent(PlayerDisconnectEvent event) {
         final ProxiedPlayer player = event.getPlayer();
 
-        //TODO: remove spam, messagecount, chatcooldown, pm-toggle, msg
+        //TODO: remove spam, messagecount, chatcooldown
+
+        this.plugin.getPrivateMessageChannel().remove(player);
+        this.plugin.getNotifyToggle().remove(player);
 
         if(this.plugin.getOnlineStaff().contains(player)) {
             for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {

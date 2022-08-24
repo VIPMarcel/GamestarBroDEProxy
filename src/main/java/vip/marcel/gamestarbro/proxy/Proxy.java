@@ -61,6 +61,7 @@ public final class Proxy extends Plugin {
 
     private Map<UUID, LinkedList<String>> sendChatMessages;
     private Map<ProxiedPlayer, ServerInfo> joinMe;
+    private Map<ProxiedPlayer, ProxiedPlayer> privateMessageChannel;
 
     private MySQL mySQL;
     private BanAbuse banAbuse;
@@ -108,6 +109,7 @@ public final class Proxy extends Plugin {
 
         this.sendChatMessages = Maps.newHashMap();
         this.joinMe = Maps.newHashMap();
+        this.privateMessageChannel = Maps.newHashMap();
 
         this.configManager = new ConfigManager(this);
         this.abuseTimeManager = new AbuseTimeManager(this);
@@ -148,7 +150,7 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new CoinsCommand(this, "coins"));
         pluginManager.registerCommand(this, new CoinsCommand(this, "coin"));
         //Help
-        //JoinMe
+        //JoinMe (do later when more games are on the network)
         pluginManager.registerCommand(this, new LobbyCommand(this, "lobby"));
         pluginManager.registerCommand(this, new LobbyCommand(this, "l"));
         pluginManager.registerCommand(this, new LobbyCommand(this, "leave"));
@@ -166,9 +168,17 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new OnlineCommand(this, "players"));
         pluginManager.registerCommand(this, new PingCommand(this, "ping"));
         pluginManager.registerCommand(this, new PingCommand(this, "connection"));
-        //PlayerInfo
-        //Msg
-        //r
+        pluginManager.registerCommand(this, new PlayerInfoCommand(this, "playerinfo", "proxy.command.playerinfo"));
+        pluginManager.registerCommand(this, new PlayerInfoCommand(this, "pinfo", "proxy.command.playerinfo"));
+        pluginManager.registerCommand(this, new PlayerInfoCommand(this, "whois", "proxy.command.playerinfo"));
+        pluginManager.registerCommand(this, new PrivateMessageCommand(this, "privatemessage"));
+        pluginManager.registerCommand(this, new PrivateMessageCommand(this, "pm"));
+        pluginManager.registerCommand(this, new PrivateMessageCommand(this, "msg"));
+        pluginManager.registerCommand(this, new PrivateMessageCommand(this, "whisper"));
+        pluginManager.registerCommand(this, new PrivateMessageCommand(this, "w"));
+        pluginManager.registerCommand(this, new PrivateMessageCommand(this, "tell"));
+        pluginManager.registerCommand(this, new PrivateMessageReplyCommand(this, "reply"));
+        pluginManager.registerCommand(this, new PrivateMessageReplyCommand(this, "r"));
         pluginManager.registerCommand(this, new PrivateMessageToggleCommand(this, "msgtoggle"));
         pluginManager.registerCommand(this, new PrivateMessageToggleCommand(this, "pmtoggle"));
         pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "reloadbungeecord", "proxy.command.reloadbungeesystem"));
@@ -286,6 +296,10 @@ public final class Proxy extends Plugin {
 
     public Map<ProxiedPlayer, ServerInfo> getJoinMe() {
         return this.joinMe;
+    }
+
+    public Map<ProxiedPlayer, ProxiedPlayer> getPrivateMessageChannel() {
+        return this.privateMessageChannel;
     }
 
     public List<String> getBlacklistedWords() {
