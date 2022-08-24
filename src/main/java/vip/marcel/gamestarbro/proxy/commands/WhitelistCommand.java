@@ -14,11 +14,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class BlacklistCommand extends Command implements TabExecutor {
+public class WhitelistCommand extends Command implements TabExecutor {
 
     private final Proxy plugin;
 
-    public BlacklistCommand(Proxy plugin, String name, String permission) {
+    public WhitelistCommand(Proxy plugin, String name, String permission) {
         super(name, permission);
         this.setPermissionMessage(plugin.getPrefix() + plugin.getNoPermissions());
         this.plugin = plugin;
@@ -35,7 +35,7 @@ public class BlacklistCommand extends Command implements TabExecutor {
         if(arguments[0].equalsIgnoreCase("add")) {
 
             if(arguments.length == 1) {
-                sender.sendMessage(this.plugin.getPrefix() + "Du musst einen §eSpielernamen §7angeben, um ihn zu blacklisten.");
+                sender.sendMessage(this.plugin.getPrefix() + "Du musst einen §eSpielernamen §7angeben, um ihn zu whitelisten.");
                 return;
             } else if(arguments.length == 2) {
 
@@ -47,37 +47,30 @@ public class BlacklistCommand extends Command implements TabExecutor {
                     return;
                 }
 
-                if(sender instanceof ProxiedPlayer player) {
-                    if(player.getName().equals(name)) {
-                        player.sendMessage(this.plugin.getPrefix() + "§cDu darfst dich nicht selber auf die Blacklist setzen.");
-                        return;
-                    }
-                }
-
-                if(this.plugin.getBlacklistedUUIDs().contains(uuid)) {
-                    sender.sendMessage(this.plugin.getPrefix() + "Der Spieler §e" + name + " §7ist schon geblacklistet.");
+                if(this.plugin.getWhitelistedUUIDs().contains(uuid)) {
+                    sender.sendMessage(this.plugin.getPrefix() + "Der Spieler §e" + name + " §7ist schon gewhitelistet.");
                     return;
                 }
 
-                this.plugin.getBlacklistedUUIDs().add(uuid);
+                this.plugin.getWhitelistedUUIDs().add(uuid);
 
-                final List<String> updatedBlacklist = this.plugin.getConfigManager().getConfiguration().getStringList("Server.Blacklisted-UUIDs");
-                updatedBlacklist.add(uuid.toString());
+                final List<String> updatedWhitelist = this.plugin.getConfigManager().getConfiguration().getStringList("Server.Maintenance.Allowed-UUIDs");
+                updatedWhitelist.add(uuid.toString());
 
-                this.plugin.getConfigManager().getConfiguration().set("Server.Blacklisted-UUIDs", updatedBlacklist);
+                this.plugin.getConfigManager().getConfiguration().set("Server.Maintenance.Allowed-UUIDs", updatedWhitelist);
                 this.plugin.getConfigManager().saveConfig();
 
                 if(ProxyServer.getInstance().getPlayer(uuid) != null) {
-                    ProxyServer.getInstance().getPlayer(uuid).disconnect("io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: no further information:");
+                    ProxyServer.getInstance().getPlayer(uuid).sendMessage(this.plugin.getPrefix() + "§eDu darfst das Netzwerk nun auch während Wartungsarbeiten betreten.");
                 }
 
                 for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {
                     if(players.hasPermission("proxy.admin") && !this.plugin.getStaffNotifyToggle().contains(players)) {
-                        players.sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde geblacklistet.");
+                        players.sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde gewhitelistet.");
                     }
                 }
 
-                ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde geblacklistet.");
+                ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde gewhitelistet.");
 
             } else {
                 sender.sendMessage(this.plugin.getPrefix() + this.plugin.getUnknownCommand());
@@ -92,10 +85,10 @@ public class BlacklistCommand extends Command implements TabExecutor {
 
             sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m--------------------§r§8┃ §eBlacklist §8§m┃--------------------");
 
-            if(this.plugin.getBlacklistedUUIDs().isEmpty()) {
-                sender.sendMessage("§8» §cEs sind momentan keine Spieler auf der §eBlacklist§c.");
+            if(this.plugin.getWhitelistedUUIDs().isEmpty()) {
+                sender.sendMessage("§8» §cEs sind momentan keine Spieler auf der §eWhitelist§c.");
             } else {
-                for(UUID uuid : this.plugin.getBlacklistedUUIDs()) {
+                for(UUID uuid : this.plugin.getWhitelistedUUIDs()) {
                     sender.sendMessage("§8» §e" + UUIDFetcher.getName(uuid));
                 }
             }
@@ -112,26 +105,26 @@ public class BlacklistCommand extends Command implements TabExecutor {
                 return;
             }
 
-            if(!this.plugin.getBlacklistedUUIDs().contains(uuid)) {
-                sender.sendMessage(this.plugin.getPrefix() + "Der Spieler §e" + name + " §7ist nicht geblacklistet.");
+            if(!this.plugin.getWhitelistedUUIDs().contains(uuid)) {
+                sender.sendMessage(this.plugin.getPrefix() + "Der Spieler §e" + name + " §7ist nicht gewhitelistet.");
                 return;
             }
 
-            this.plugin.getBlacklistedUUIDs().remove(uuid);
+            this.plugin.getWhitelistedUUIDs().remove(uuid);
 
-            final List<String> updatedBlacklist = this.plugin.getConfigManager().getConfiguration().getStringList("Server.Blacklisted-UUIDs");
-            updatedBlacklist.remove(uuid.toString());
+            final List<String> updatedWhitelist = this.plugin.getConfigManager().getConfiguration().getStringList("Server.Maintenance.Allowed-UUIDs");
+            updatedWhitelist.remove(uuid.toString());
 
-            this.plugin.getConfigManager().getConfiguration().set("Server.Blacklisted-UUIDs", updatedBlacklist);
+            this.plugin.getConfigManager().getConfiguration().set("Server.Maintenance.Allowed-UUIDs", updatedWhitelist);
             this.plugin.getConfigManager().saveConfig();
 
             for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {
                 if(players.hasPermission("proxy.admin") && !this.plugin.getStaffNotifyToggle().contains(players)) {
-                    players.sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde der Blacklistet entfernt.");
+                    players.sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde der Whitelist entfernt.");
                 }
             }
 
-            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde der Blacklist entfernt.");
+            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Der Spieler §e" + name + "§7 wurde der Whitelist entfernt.");
 
         } else {
             sender.sendMessage(this.plugin.getPrefix() + "Du musst eine §eAktion §7angeben, die durchgeführt werden soll. (§eadd§7/§elist§7/§eremove§7)");
@@ -152,7 +145,7 @@ public class BlacklistCommand extends Command implements TabExecutor {
             }
 
             if(arguments[0].equalsIgnoreCase("remove")) {
-                for(UUID uuid : this.plugin.getBlacklistedUUIDs()) {
+                for(UUID uuid : this.plugin.getWhitelistedUUIDs()) {
                     output.add(UUIDFetcher.getName(uuid));
                 }
             }

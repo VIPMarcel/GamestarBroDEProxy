@@ -138,8 +138,11 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new AlertCommand(this, "alert", "proxy.command.alert"));
         pluginManager.registerCommand(this, new AlertCommand(this, "broadcast", "proxy.command.alert"));
         pluginManager.registerCommand(this, new BauserverCommand(this, "bauserver", "proxy.command.bauserver"));
+        pluginManager.registerCommand(this, new BlacklistCommand(this, "blacklist", "proxy.admin"));
+        pluginManager.registerCommand(this, new BlacklistCommand(this, "bl", "proxy.admin"));
+        pluginManager.registerCommand(this, new BlacklistIpCommand(this, "blacklistip", "proxy.admin"));
+        pluginManager.registerCommand(this, new BlacklistIpCommand(this, "blip", "proxy.admin"));
         pluginManager.registerCommand(this, new DevserverCommand(this, "devserver", "proxy.command.devserver"));
-        //Blacklist, BlacklistIp
         pluginManager.registerCommand(this, new ChatClearCommand(this, "chatclear", "proxy.staff"));
         pluginManager.registerCommand(this, new ChatClearCommand(this, "cc", "proxy.staff"));
         pluginManager.registerCommand(this, new CoinsCommand(this, "coins"));
@@ -151,7 +154,9 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new LobbyCommand(this, "leave"));
         pluginManager.registerCommand(this, new LobbyCommand(this, "hub"));
         pluginManager.registerCommand(this, new LobbyCommand(this, "disconnect"));
-        //Maintenance
+        pluginManager.registerCommand(this, new MaintenanceCommand(this, "maintenance", "proxy.admin"));
+        pluginManager.registerCommand(this, new MaintenanceCommand(this, "wartungsarbeiten", "proxy.admin"));
+        pluginManager.registerCommand(this, new MaintenanceCommand(this, "wartungen", "proxy.admin"));
         pluginManager.registerCommand(this, new NotifyToggleCommand(this, "notifytoggle", "proxy.staff"));
         pluginManager.registerCommand(this, new NotifyToggleCommand(this, "ntoggle", "proxy.staff"));
         pluginManager.registerCommand(this, new NotifyToggleCommand(this, "nt", "proxy.staff"));
@@ -183,7 +188,8 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new SwitchServerCommand(this, "connect", "proxy.staff"));
         pluginManager.registerCommand(this, new SwitchServerCommand(this, "ss", "proxy.staff"));
         pluginManager.registerCommand(this, new WhereIsCommand(this, "whereis", "proxy.staff"));
-        //Whitelist
+        pluginManager.registerCommand(this, new WhitelistCommand(this, "globalwhitelist", "proxy.admin"));
+        pluginManager.registerCommand(this, new WhitelistCommand(this, "gwhitelist", "proxy.admin"));
 
 
         pluginManager.registerListener(this, new LoginListener(this));
