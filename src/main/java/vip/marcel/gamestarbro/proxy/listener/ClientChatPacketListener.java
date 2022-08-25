@@ -14,6 +14,7 @@ import vip.marcel.gamestarbro.proxy.utils.entities.AbusedInfo;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 public class ClientChatPacketListener extends AbstractPacketListener<ClientChat> {
 
@@ -41,7 +42,95 @@ public class ClientChatPacketListener extends AbstractPacketListener<ClientChat>
                 handlePlayerMute(player);
             } else {
 
-                //TODO: Check spam, blackwords, server-werbung
+                if(!player.hasPermission("proxy.admin")) {
+
+                    if(!this.plugin.getSpamCount().containsKey(player.getUniqueId())) {
+                        this.plugin.getSpamCount().put(player.getUniqueId(), 0);
+                    }
+
+                    if(!this.plugin.getChatCooldown().contains(player.getUniqueId())) {
+                        this.plugin.getChatCooldown().add(player.getUniqueId());
+
+                        ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
+                            this.plugin.getChatCooldown().remove(player.getUniqueId());
+                        }, 1, TimeUnit.SECONDS);
+
+                    } else {
+                        this.plugin.getSpamCount().put(player.getUniqueId(), this.plugin.getSpamCount().get(player.getUniqueId()) + 1);
+
+                        ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
+                            this.plugin.getSpamCount().remove(player.getUniqueId());
+                        }, 5, TimeUnit.SECONDS);
+
+                        player.sendMessage(this.plugin.getPrefix() + "§cBitte schreibe etwas langsamer.");
+
+                        if(this.plugin.getSpamCount().get(player.getUniqueId()).equals(3)) {
+                            this.plugin.getSpamCount().remove(player.getUniqueId());
+
+                            if(!this.plugin.getMessageCount().containsKey(player.getUniqueId())) {
+                                this.plugin.getMessageCount().put(player.getUniqueId(), 1);
+                            } else {
+                                this.plugin.getMessageCount().put(player.getUniqueId(), this.plugin.getMessageCount().get(player.getUniqueId()) + 1);
+                            }
+
+                            if(this.plugin.getMessageCount().get(player.getUniqueId()).equals(1)) {
+                                ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "kick " + player.getName() + " Spam");
+                            } else {
+                                this.plugin.getMessageCount().remove(player.getUniqueId());
+                                ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "abuse " + player.getName() + " 6");
+                            }
+
+                            return;
+                        }
+                    }
+
+                    if(this.plugin.getChatFilter().messageContainsBlackListedWords(packet.getMessage())) {
+
+                        if(!this.plugin.getInsultingCount().containsKey(player.getUniqueId())) {
+                            this.plugin.getInsultingCount().put(player.getUniqueId(), 1);
+                        }
+
+                        if(this.plugin.getInsultingCount().get(player.getUniqueId()).equals(0) |
+                                this.plugin.getInsultingCount().get(player.getUniqueId()).equals(1) |
+                                this.plugin.getInsultingCount().get(player.getUniqueId()).equals(2)) {
+
+                            addToPlayerChatLogs(player, packet.getMessage());
+                            player.sendMessage(this.plugin.getPrefix() + "§cBitte achte auf deine Wortwahl.");
+                            this.plugin.getInsultingCount().put(player.getUniqueId(), this.plugin.getInsultingCount().get(player.getUniqueId()) + 1);
+
+                            return;
+                        }
+
+                        if(this.plugin.getInsultingCount().get(player.getUniqueId()).equals(3)) {
+                            this.plugin.getInsultingCount().remove(player.getUniqueId());
+
+                            ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "abuse " + player.getName() + " 5");
+                        }
+
+                        return;
+                    }
+
+                    if(this.plugin.getChatFilter().messageContainsOnlineMinecraftServerIP(packet.getMessage())) {
+
+                        if(!this.plugin.getAdvertisingCount().containsKey(player.getUniqueId())) {
+                            this.plugin.getAdvertisingCount().put(player.getUniqueId(), 1);
+                        } else {
+                            this.plugin.getAdvertisingCount().put(player.getUniqueId(), this.plugin.getAdvertisingCount().get(player.getUniqueId()) + 1);
+                        }
+
+                        addToPlayerChatLogs(player, packet.getMessage());
+                        player.sendMessage(this.plugin.getPrefix() + "§cDu darfst keine Werbung für Server machen. (§e" + this.plugin.getAdvertisingCount().get(player.getUniqueId()) + "§c/§e3§c)");
+
+                        if(this.plugin.getAdvertisingCount().get(player.getUniqueId()).equals(3)) {
+                            this.plugin.getAdvertisingCount().remove(player.getUniqueId());
+
+                            ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "abuse " + player.getName() + " 4");
+                        }
+
+                        return;
+                    }
+
+                }
 
                 addToPlayerChatLogs(player, packet.getMessage());
                 protocolizePlayer.sendPacketToServer(packet);

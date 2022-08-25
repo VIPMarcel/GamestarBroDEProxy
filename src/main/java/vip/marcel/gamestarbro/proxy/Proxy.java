@@ -15,6 +15,7 @@ import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import vip.marcel.gamestarbro.proxy.commands.*;
 import vip.marcel.gamestarbro.proxy.listener.*;
+import vip.marcel.gamestarbro.proxy.utils.ChatFilter;
 import vip.marcel.gamestarbro.proxy.utils.database.DatabasePlayers;
 import vip.marcel.gamestarbro.proxy.utils.database.MySQL;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseBans;
@@ -48,6 +49,7 @@ public final class Proxy extends Plugin {
     private List<ProxiedPlayer> staffNotifyToggle;
     private List<ProxiedPlayer> onlineStaff;
     private List<ProxiedPlayer> notifyToggle;
+    private List<UUID> chatCooldown;
 
     private String lobbyServerName, devServerName, bauServerName;
     private int serverSlots, fakePlayers;
@@ -63,6 +65,11 @@ public final class Proxy extends Plugin {
     private Map<ProxiedPlayer, ServerInfo> joinMe;
     private Map<ProxiedPlayer, ProxiedPlayer> privateMessageChannel;
 
+    private Map<UUID, Integer> spamCount;
+    private Map<UUID, Integer> messageCount;
+    private Map<UUID, Integer> insultingCount;
+    private Map<UUID, Integer> advertisingCount;
+
     private MySQL mySQL;
     private BanAbuse banAbuse;
     private MuteAbuse muteAbuse;
@@ -71,6 +78,7 @@ public final class Proxy extends Plugin {
     private DatabasePlayers databasePlayers;
 
     private ChatLog chatLog;
+    private ChatFilter chatFilter;
 
     private ConfigManager configManager;
     private AbuseTimeManager abuseTimeManager;
@@ -102,6 +110,7 @@ public final class Proxy extends Plugin {
         this.blacklistedIPs = Lists.newArrayList();
         this.whitelistedUUIDs = Lists.newArrayList();
         this.staffNotifyToggle = Lists.newArrayList();
+        this.chatCooldown = Lists.newArrayList();
         this.onlineStaff = Lists.newArrayList();
         this.notifyToggle = Lists.newArrayList();
         this.abuseReasons = Maps.newHashMap();
@@ -110,6 +119,11 @@ public final class Proxy extends Plugin {
         this.sendChatMessages = Maps.newHashMap();
         this.joinMe = Maps.newHashMap();
         this.privateMessageChannel = Maps.newHashMap();
+
+        this.spamCount = Maps.newHashMap();
+        this.messageCount = Maps.newHashMap();
+        this.insultingCount = Maps.newHashMap();
+        this.advertisingCount = Maps.newHashMap();
 
         this.configManager = new ConfigManager(this);
         this.abuseTimeManager = new AbuseTimeManager(this);
@@ -125,6 +139,7 @@ public final class Proxy extends Plugin {
         this.databasePlayers = new DatabasePlayers(this);
 
         this.chatLog = new ChatLog(this);
+        this.chatFilter = new ChatFilter(this);
 
         this.luckPerms = LuckPermsProvider.get();
 
@@ -250,6 +265,10 @@ public final class Proxy extends Plugin {
         return this.chatLog;
     }
 
+    public ChatFilter getChatFilter() {
+        return this.chatFilter;
+    }
+
     public ConfigManager getConfigManager() {
         return this.configManager;
     }
@@ -302,6 +321,22 @@ public final class Proxy extends Plugin {
         return this.privateMessageChannel;
     }
 
+    public Map<UUID, Integer> getSpamCount() {
+        return this.spamCount;
+    }
+
+    public Map<UUID, Integer> getMessageCount() {
+        return this.messageCount;
+    }
+
+    public Map<UUID, Integer> getInsultingCount() {
+        return this.insultingCount;
+    }
+
+    public Map<UUID, Integer> getAdvertisingCount() {
+        return this.advertisingCount;
+    }
+
     public List<String> getBlacklistedWords() {
         return this.blacklistedWords;
     }
@@ -340,6 +375,10 @@ public final class Proxy extends Plugin {
 
     public List<ProxiedPlayer> getNotifyToggle() {
         return this.notifyToggle;
+    }
+
+    public List<UUID> getChatCooldown() {
+        return this.chatCooldown;
     }
 
     public String getLobbyServerName() {

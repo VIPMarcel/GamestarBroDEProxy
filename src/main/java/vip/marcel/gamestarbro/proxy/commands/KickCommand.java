@@ -81,7 +81,7 @@ public class KickCommand extends Command {
             if(players.hasPermission("proxy.abuse.notify")) {
                 if(!this.plugin.getStaffNotifyToggle().contains(players)) {
                     if(players != sender) {
-                        sendStaffKickedMessage(sender, target, finalReason, finalKickedByName);
+                        sendStaffKickedMessage(players, target, finalReason, finalKickedByName);
                     }
                 }
             }
@@ -91,7 +91,7 @@ public class KickCommand extends Command {
 
         if(sender != ProxyServer.getInstance().getConsole()) {
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m----------------------§r§8┃ §cKick §8§m┃---------------------");
-            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» " + target.getName());
+            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + target.getName());
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Grund §8» §e" + reason);
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Gekickt von §8» §e" + kickedByName);
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
@@ -101,7 +101,7 @@ public class KickCommand extends Command {
 
     private void sendStaffKickedMessage(CommandSender sender, ProxiedPlayer target, String reason, String kickedByName) {
         sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m----------------------§r§8┃ §cKick §8§m┃---------------------");
-        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» " + target.getName());
+        sender.sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + target.getName());
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7Grund §8» §e" + reason);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§7Gekickt von §8» §e" + kickedByName);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
