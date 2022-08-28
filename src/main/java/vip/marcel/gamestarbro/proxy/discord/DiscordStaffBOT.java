@@ -52,20 +52,6 @@ public class DiscordStaffBOT {
         }).start();
     }
 
-    public void test() {
-        final TextChannel abusesChannel = this.jda.getTextChannelById("1013450527725600858");
-        final TextChannel reportsChannel = this.jda.getTextChannelById("1013450766054326384");
-
-        if (abusesChannel != null) {
-            abusesChannel.sendMessage("Test- Message").queue();
-        }
-
-        if (reportsChannel != null) {
-            reportsChannel.sendMessage("Test- Message").queue();
-        }
-
-    }
-
     public void sendKickMessage(String playername, String abusedBy, String reason) {
         if(this.abusesChannel == null) {
             return;
@@ -179,7 +165,7 @@ public class DiscordStaffBOT {
         builder.setAuthor(sendBy);
         builder.setColor(Color.YELLOW);
 
-        this.abusesChannel.sendMessageEmbeds(builder.build()).queue();
+        this.informationChannel.sendMessageEmbeds(builder.build()).queue();
     }
 
 }
