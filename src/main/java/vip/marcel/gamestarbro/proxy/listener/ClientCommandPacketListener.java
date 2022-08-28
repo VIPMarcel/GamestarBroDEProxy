@@ -29,29 +29,50 @@ public class ClientCommandPacketListener extends AbstractPacketListener<ClientCo
         final ProtocolizePlayer protocolizePlayer = event.player();
         final ProxiedPlayer player = protocolizePlayer.handle();
 
+        final String command = packet.getCommand();
+
+        ProxyServer.getInstance().getPlayers().forEach(players -> {
+            if(this.plugin.getCommandSpy().contains(players)) {
+                if(players != player) {
+                    players.sendMessage("§8§l┃ §6CommandSpy §8► §e" + player.getName() + " §8» §7/" + command);
+                }
+            }
+        });
+
         try {
-            if(packet.getCommand().startsWith("msg ") |
-                    packet.getCommand().startsWith("whisper ") |
-                    packet.getCommand().startsWith("tell ") |
-                    packet.getCommand().startsWith("w ") |
-                    packet.getCommand().startsWith("reply ") |
-                    packet.getCommand().startsWith("r ")) {
+            if(command.startsWith("msg ") |
+                    command.startsWith("whisper ") |
+                    command.startsWith("tell ") |
+                    command.startsWith("w ") |
+                    command.startsWith("reply ") |
+                    command.startsWith("r ")) {
 
                 // do async?
                 if(this.plugin.getAbuseManager().isAbuse(AbuseType.MUTE, player.getUniqueId())) {
                     event.cancelled(true);
                     handlePlayerMute(player);
                 } else {
-                    addToPlayerChatLogs(player, packet.getCommand());
+                    addToPlayerChatLogs(player, command);
                     return;
                 }
 
             }
+
+            if(command.startsWith("report ")) {
+                // do async?
+                if(this.plugin.getAbuseManager().isAbuse(AbuseType.MUTE, player.getUniqueId())) {
+                    final AbusedInfo abusedInfo = this.plugin.getAbuseManager().getAbuse(AbuseType.MUTE, player.getUniqueId());
+
+                    if(abusedInfo.getAbuseReason().equalsIgnoreCase("Unnötiger Report")) {
+                        event.cancelled(true);
+                        handlePlayerMute(player);
+                    }
+
+                }
+            }
         } catch (UnsupportedOperationException e) {
             ProxyServer.getInstance().getConsole().sendMessage("Packet ClientCommand: " + e.getMessage());
         }
-
-        //TODO: Check reports
 
     }
 

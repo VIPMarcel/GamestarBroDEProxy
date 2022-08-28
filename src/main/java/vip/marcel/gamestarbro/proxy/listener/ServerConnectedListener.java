@@ -1,8 +1,6 @@
 package vip.marcel.gamestarbro.proxy.listener;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -25,9 +23,9 @@ public record ServerConnectedListener(Proxy plugin) implements Listener {
         final String motdMaintenance = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfigManager().getConfiguration().getString("Server.Modt.Maintenance"));
 
         if(this.plugin.isMaintenance()) {
-            player.setTabHeader(new TextComponent(motd1 + "\n" + motdMaintenance + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + event.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher siehst.\n"));
+            player.setTabHeader(new TextComponent(motd1 + "\n" + motdMaintenance + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + event.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher§7 siehst.\n"));
         } else {
-            player.setTabHeader(new TextComponent(motd1 + "\n" + motd2 + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + event.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher siehst.\n"));
+            player.setTabHeader(new TextComponent(motd1 + "\n" + motd2 + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + event.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher§7 siehst.\n"));
         }
 
     }

@@ -89,6 +89,8 @@ public class KickCommand extends Command {
 
         sendStaffKickedMessage(sender, target, reason, kickedByName);
 
+        this.plugin.getDiscordStaffBOT().sendKickMessage(target.getName(), kickedByName, reason);
+
         if(sender != ProxyServer.getInstance().getConsole()) {
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m----------------------§r§8┃ §cKick §8§m┃---------------------");
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + target.getName());

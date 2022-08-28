@@ -96,5 +96,15 @@
       "10 d ban",
       "14 d ban"
     ]
+  },
+  {
+    "AbuseReason": "Unnötiger Report",
+    "AbusePermission": "abuse.staff",
+    "AbuseId": 10,
+    "Times": [
+      "3 d mute",
+      "7 d mute",
+      "14 d mute"
+    ]
   }
 ]

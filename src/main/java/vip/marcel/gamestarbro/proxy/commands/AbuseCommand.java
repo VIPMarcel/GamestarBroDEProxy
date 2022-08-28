@@ -181,6 +181,8 @@ public class AbuseCommand extends Command implements TabExecutor {
 
         sendAbuseStaffMessage(sender, name, abusedInfo, finalAbuseTypeName);
 
+        this.plugin.getDiscordStaffBOT().sendAbuseMessage(abuseType, name, abusedInfo.getAbusedByName(), abusedInfo.getAbuseId(), (abusedInfo.getAbuseExpires() == -1 ? "Permanent" : this.plugin.getAbuseTimeManager().getSimpleTimeString(TimeUnit.MILLISECONDS.toSeconds(abusedInfo.getAbuseExpires() - abusedInfo.getAbuseCreated()))), abusedInfo.getAbuseReason());
+
         if(sender != ProxyServer.getInstance().getConsole()) {
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m---------------------§r§8┃ §cAbuse §8§m┃--------------------");
             ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + name + " §8┃ §e" + abusedInfo.getAbuseId());

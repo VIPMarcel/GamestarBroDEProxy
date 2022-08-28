@@ -23,7 +23,7 @@ public class CoinsCommand extends Command {
         if(sender instanceof ProxiedPlayer player) {
 
             if(arguments.length == 0) {
-                player.sendMessage(this.plugin.getPrefix() + "Du hast §a" + this.plugin.getDatabasePlayers().getCoins(player.getUniqueId()) + " Coins§7.");
+                player.sendMessage(this.plugin.getPrefix() + "Du hast §a" + this.plugin.getDatabasePlayers().getCoins(player.getUniqueId()) + " Coins§7."); // ✪
                 return;
             } else if(arguments.length == 1) {
                 final String playerName = arguments[0];

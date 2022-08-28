@@ -2,6 +2,10 @@ package vip.marcel.gamestarbro.proxy.listener;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -21,7 +25,52 @@ public record ServerConnectListener(Proxy plugin) implements Listener {
             if(player.hasPermission("proxy.staff")) {
                 this.plugin.getOnlineStaff().add(player);
 
-                //TODO: List up new reports
+                ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
+                    if(!(this.plugin.getReports().isEmpty())) {
+
+                        TextComponent prefix = new TextComponent(this.plugin.getTeamPrefix());
+                        TextComponent list = new TextComponent("§a§nAlle anzeigen");
+                        list.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§8» §7Alle §cReports §7anzeigen").create()));
+                        list.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/reports"));
+                        prefix.addExtra(list);
+
+                        player.sendMessage(this.plugin.getTeamPrefix() + "§8§m--------------------§r§8┃ §cReport §8§m┃--------------------");
+                        boolean selected = false;
+                        String amount = "";
+
+                        if(this.plugin.getReports().size() < 4) {
+                            amount = "§a" + this.plugin.getReports().size();
+                            selected = true;
+                        }
+
+                        if(this.plugin.getReports().size() < 7 && !selected) {
+                            amount = "§e" + this.plugin.getReports().size();
+                            selected = true;
+                        }
+
+                        if(this.plugin.getReports().size() < 10 && !selected) {
+                            amount = "§c" + this.plugin.getReports().size();
+                            selected = true;
+                        }
+
+                        if(this.plugin.getReports().size() < 13 && !selected) {
+                            amount = "§4" + this.plugin.getReports().size();
+                            selected = true;
+                        }
+
+                        if(this.plugin.getReports().size() >= 13 && !selected) {
+                            amount = "§4§l" + this.plugin.getReports().size();
+                            selected = true;
+                        }
+
+                        player.sendMessage(this.plugin.getTeamPrefix() + "§7Unbearbeitete §cReports §8» " + amount);
+                        player.sendMessage(prefix);
+                        player.sendMessage(this.plugin.getTeamPrefix() + "§8§m------------------------------------------------");
+                    }
+                    else {
+                        player.sendMessage(this.plugin.getTeamPrefix() + "§7Es liegen momentan keine unbeantworteten §eReports §7vor.");
+                    }
+                }, 1, TimeUnit.SECONDS);
 
                 ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
                     for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {
@@ -54,13 +103,20 @@ public record ServerConnectListener(Proxy plugin) implements Listener {
 
             event.setTarget(ProxyServer.getInstance().getServerInfo(this.plugin.getLobbyServerName()));
 
-            //TODO: impl. loginstreak
+            final long lastSeenMillis = this.plugin.getDatabasePlayers().getLastSeenMillis(player.getUniqueId());
+            final long diffMillis = System.currentTimeMillis() - lastSeenMillis;
+
+            if(diffMillis > TimeUnit.DAYS.toMillis(2)) {
+                this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), 0);
+            } else if(TimeUnit.MILLISECONDS.toDays(lastSeenMillis) != TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis())) {
+                this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + 1);
+            }
 
             player.sendMessage(" ");
             player.sendMessage(" ");
             player.sendMessage("§8§m-----------------------------------------------------");
             player.sendMessage("                  §7Herzlich Willkommen auf §6GamestarBro.de");
-            player.sendMessage("                         §7Login- Streak §8» §a100★");
+            player.sendMessage("                         §7Login- Streak §8» §a" + this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + "★");
             player.sendMessage("§8§m-----------------------------------------------------");
 
         }

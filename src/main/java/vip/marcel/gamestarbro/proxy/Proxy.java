@@ -14,6 +14,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import vip.marcel.gamestarbro.proxy.commands.*;
+import vip.marcel.gamestarbro.proxy.discord.DiscordStaffBOT;
 import vip.marcel.gamestarbro.proxy.listener.*;
 import vip.marcel.gamestarbro.proxy.utils.ChatFilter;
 import vip.marcel.gamestarbro.proxy.utils.database.DatabasePlayers;
@@ -24,11 +25,14 @@ import vip.marcel.gamestarbro.proxy.utils.database.abuse.BanAbuse;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.MuteAbuse;
 import vip.marcel.gamestarbro.proxy.utils.database.chatlog.ChatLog;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
+import vip.marcel.gamestarbro.proxy.utils.entities.Report;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
 import vip.marcel.gamestarbro.proxy.utils.managers.AbuseManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.AbuseTimeManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.ConfigManager;
 import vip.marcel.gamestarbro.proxy.utils.managers.PermissionsManager;
+import vip.marcel.gamestarbro.proxy.utils.runnables.AnnounceInformationRunnable;
+import vip.marcel.gamestarbro.proxy.utils.runnables.PlayTimeRunnable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +53,10 @@ public final class Proxy extends Plugin {
     private List<ProxiedPlayer> staffNotifyToggle;
     private List<ProxiedPlayer> onlineStaff;
     private List<ProxiedPlayer> notifyToggle;
+    private List<ProxiedPlayer> socialSpy;
+    private List<ProxiedPlayer> commandSpy;
     private List<UUID> chatCooldown;
+    private List<UUID> reportCommandCooldown;
 
     private String lobbyServerName, devServerName, bauServerName;
     private int serverSlots, fakePlayers;
@@ -57,6 +64,7 @@ public final class Proxy extends Plugin {
     private boolean maintenance;
 
     private LuckPerms luckPerms;
+    private DiscordStaffBOT discordStaffBOT;
 
     private Map<String, Abuse> abuseReasons;
     private Map<Integer, Abuse> abuseIds;
@@ -64,6 +72,7 @@ public final class Proxy extends Plugin {
     private Map<UUID, LinkedList<String>> sendChatMessages;
     private Map<ProxiedPlayer, ServerInfo> joinMe;
     private Map<ProxiedPlayer, ProxiedPlayer> privateMessageChannel;
+    private Map<ProxiedPlayer, Report> reports;
 
     private Map<UUID, Integer> spamCount;
     private Map<UUID, Integer> messageCount;
@@ -102,6 +111,7 @@ public final class Proxy extends Plugin {
     @Override
     public void onDisable() {
         this.mySQL.disconnect();
+        this.discordStaffBOT.shutdownBOT();
     }
 
     private void init() {
@@ -111,14 +121,18 @@ public final class Proxy extends Plugin {
         this.whitelistedUUIDs = Lists.newArrayList();
         this.staffNotifyToggle = Lists.newArrayList();
         this.chatCooldown = Lists.newArrayList();
+        this.reportCommandCooldown = Lists.newArrayList();
         this.onlineStaff = Lists.newArrayList();
         this.notifyToggle = Lists.newArrayList();
+        this.socialSpy = Lists.newArrayList();
+        this.commandSpy = Lists.newArrayList();
         this.abuseReasons = Maps.newHashMap();
         this.abuseIds = Maps.newHashMap();
 
         this.sendChatMessages = Maps.newHashMap();
         this.joinMe = Maps.newHashMap();
         this.privateMessageChannel = Maps.newHashMap();
+        this.reports = Maps.newHashMap();
 
         this.spamCount = Maps.newHashMap();
         this.messageCount = Maps.newHashMap();
@@ -142,6 +156,7 @@ public final class Proxy extends Plugin {
         this.chatFilter = new ChatFilter(this);
 
         this.luckPerms = LuckPermsProvider.get();
+        this.discordStaffBOT = new DiscordStaffBOT(this);
 
         final PluginManager pluginManager = ProxyServer.getInstance().getPluginManager();
         pluginManager.registerCommand(this, new AbuseCommand(this, "abuse", "proxy.command.abuse"));
@@ -154,17 +169,25 @@ public final class Proxy extends Plugin {
 
         pluginManager.registerCommand(this, new AlertCommand(this, "alert", "proxy.command.alert"));
         pluginManager.registerCommand(this, new AlertCommand(this, "broadcast", "proxy.command.alert"));
+        pluginManager.registerCommand(this, new AlertDiscordCommand(this, "alertdiscord", "proxy.command.alertdiscord"));
         pluginManager.registerCommand(this, new BauserverCommand(this, "bauserver", "proxy.command.bauserver"));
         pluginManager.registerCommand(this, new BlacklistCommand(this, "blacklist", "proxy.admin"));
         pluginManager.registerCommand(this, new BlacklistCommand(this, "bl", "proxy.admin"));
         pluginManager.registerCommand(this, new BlacklistIpCommand(this, "blacklistip", "proxy.admin"));
         pluginManager.registerCommand(this, new BlacklistIpCommand(this, "blip", "proxy.admin"));
         pluginManager.registerCommand(this, new DevserverCommand(this, "devserver", "proxy.command.devserver"));
+        pluginManager.registerCommand(this, new DiscordCommand(this, "discord"));
+        pluginManager.registerCommand(this, new DiscordCommand(this, "ts"));
+        pluginManager.registerCommand(this, new DiscordCommand(this, "ts3"));
+        pluginManager.registerCommand(this, new DiscordCommand(this, "teamspeak"));
+        pluginManager.registerCommand(this, new DiscordCommand(this, "forum"));
         pluginManager.registerCommand(this, new ChatClearCommand(this, "chatclear", "proxy.staff"));
         pluginManager.registerCommand(this, new ChatClearCommand(this, "cc", "proxy.staff"));
         pluginManager.registerCommand(this, new CoinsCommand(this, "coins"));
         pluginManager.registerCommand(this, new CoinsCommand(this, "coin"));
-        //Help
+        pluginManager.registerCommand(this, new HelpCommand(this, "help"));
+        pluginManager.registerCommand(this, new HelpCommand(this, "?"));
+        pluginManager.registerCommand(this, new HelpCommand(this, "hilfe"));
         //JoinMe (do later when more games are on the network)
         pluginManager.registerCommand(this, new LobbyCommand(this, "lobby"));
         pluginManager.registerCommand(this, new LobbyCommand(this, "l"));
@@ -199,8 +222,9 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "reloadbungeecord", "proxy.command.reloadbungeesystem"));
         pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "reloadbungee", "proxy.command.reloadbungeesystem"));
         pluginManager.registerCommand(this, new ReloadBungeeSystemCommand(this, "greload", "proxy.command.reloadbungeesystem"));
-        //Report
-        //Reports
+        pluginManager.registerCommand(this, new ReportCommand(this, "report"));
+        pluginManager.registerCommand(this, new ReportCommand(this, "melden"));
+        pluginManager.registerCommand(this, new ReportsCommand(this, "reports", "proxy.staff"));
         pluginManager.registerCommand(this, new StaffChatCommand(this, "staffchat", "proxy.staff"));
         pluginManager.registerCommand(this, new StaffChatCommand(this, "teamchat", "proxy.staff"));
         pluginManager.registerCommand(this, new StaffChatCommand(this, "tc", "proxy.staff"));
@@ -215,6 +239,8 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new WhereIsCommand(this, "whereis", "proxy.staff"));
         pluginManager.registerCommand(this, new WhitelistCommand(this, "globalwhitelist", "proxy.admin"));
         pluginManager.registerCommand(this, new WhitelistCommand(this, "gwhitelist", "proxy.admin"));
+        pluginManager.registerCommand(this, new SocialSpyCommand(this, "socialspy", "proxy.command.socialspy"));
+        pluginManager.registerCommand(this, new CommandSpyCommand(this, "commandspy", "proxy.command.commandspy"));
 
 
         pluginManager.registerListener(this, new LoginListener(this));
@@ -227,6 +253,9 @@ public final class Proxy extends Plugin {
 
         Protocolize.listenerProvider().registerListener(new ClientChatPacketListener(this, ClientChat.class, Direction.UPSTREAM, 0));
         Protocolize.listenerProvider().registerListener(new ClientCommandPacketListener(this, ClientCommand.class, Direction.UPSTREAM, 0));
+
+        new PlayTimeRunnable(this).run();
+        new AnnounceInformationRunnable(this).run();
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
@@ -235,6 +264,10 @@ public final class Proxy extends Plugin {
 
     public LuckPerms getLuckPerms() {
         return this.luckPerms;
+    }
+
+    public DiscordStaffBOT getDiscordStaffBOT() {
+        return this.discordStaffBOT;
     }
 
     public MySQL getMySQL() {
@@ -321,6 +354,10 @@ public final class Proxy extends Plugin {
         return this.privateMessageChannel;
     }
 
+    public Map<ProxiedPlayer, Report> getReports() {
+        return this.reports;
+    }
+
     public Map<UUID, Integer> getSpamCount() {
         return this.spamCount;
     }
@@ -377,8 +414,20 @@ public final class Proxy extends Plugin {
         return this.notifyToggle;
     }
 
+    public List<ProxiedPlayer> getSocialSpy() {
+        return this.socialSpy;
+    }
+
+    public List<ProxiedPlayer> getCommandSpy() {
+        return this.commandSpy;
+    }
+
     public List<UUID> getChatCooldown() {
         return this.chatCooldown;
+    }
+
+    public List<UUID> getReportCommandCooldown() {
+        return this.reportCommandCooldown;
     }
 
     public String getLobbyServerName() {

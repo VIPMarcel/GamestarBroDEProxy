@@ -83,6 +83,10 @@
             <id>exceptionflug</id>
             <url>https://mvn.exceptionflug.de/repository/exceptionflug-public/</url>
         </repository>
+        <repository>
+            <id>JDA</id>
+            <url>https://maven.pkg.github.com/DV8FromTheWorld/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -123,6 +127,11 @@
             <artifactId>protocolize-api</artifactId>
             <version>2.2.2</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>5.0.0-alpha.18</version>
         </dependency>
     </dependencies>
 </project>

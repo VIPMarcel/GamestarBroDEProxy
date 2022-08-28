@@ -80,6 +80,8 @@ public class PardonCommand extends Command implements TabExecutor {
 
             sendPardonStaffMessage(sender, name, abusedInfo, "Bann", pardonedByName);
 
+            this.plugin.getDiscordStaffBOT().sendPardonMessage(AbuseType.BAN, name, pardonedByName, abusedInfo.getAbuseId());
+
             if(sender != ProxyServer.getInstance().getConsole()) {
                 ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m--------------------§r§8┃ §cPardon §8§m┃-------------------");
                 ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§7Spieler §8» §e" + name + " §8┃ §e" + abusedInfo.getAbuseId());
@@ -118,6 +120,8 @@ public class PardonCommand extends Command implements TabExecutor {
             });
 
             sendPardonStaffMessage(sender, name, abusedInfo, "Mute", pardonedByName);
+
+            this.plugin.getDiscordStaffBOT().sendPardonMessage(AbuseType.MUTE, name, pardonedByName, abusedInfo.getAbuseId());
 
             if(sender != ProxyServer.getInstance().getConsole()) {
                 ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§8§m--------------------§r§8┃ §cPardon §8§m┃-------------------");

@@ -33,9 +33,9 @@ public class ReloadBungeeSystemCommand extends Command {
 
         ProxyServer.getInstance().getPlayers().forEach(players -> {
             if(this.plugin.isMaintenance()) {
-                players.setTabHeader(new TextComponent(motd1 + "\n" + motdMaintenance + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + players.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher siehst.\n"));
+                players.setTabHeader(new TextComponent(motd1 + "\n" + motdMaintenance + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + players.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher§7 siehst.\n"));
             } else {
-                players.setTabHeader(new TextComponent(motd1 + "\n" + motd2 + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + players.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher siehst.\n"));
+                players.setTabHeader(new TextComponent(motd1 + "\n" + motd2 + "\n\n§7Partner §8➠ §bTube-Hosting.de\n"), new TextComponent("\n§7Server §8» §a" + players.getServer().getInfo().getName() + "\n\n§7Benutze §c/report §7wenn du einen §eRegelbrecher§7 siehst.\n"));
             }
         });
 

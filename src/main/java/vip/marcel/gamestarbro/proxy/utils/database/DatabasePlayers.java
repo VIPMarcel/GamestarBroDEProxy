@@ -35,7 +35,7 @@ public class DatabasePlayers {
     public void createPlayer(UUID uuid) {
         if(!doesPlayerExists(uuid)) {
             try {
-                PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("INSERT INTO Players(UUID, PlayerName, IPAdress, AbuseLevel, KicksAmount, PlayTime, Coins, FirstJoin, LastSeen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("INSERT INTO Players(UUID, PlayerName, IPAdress, AbuseLevel, KicksAmount, PlayTime, Coins, FirstJoin, LastSeen, LoginStreak) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 statement.setString(1, uuid.toString());
                 statement.setString(2, "");
                 statement.setString(3, "");
@@ -45,6 +45,7 @@ public class DatabasePlayers {
                 statement.setInt(7, 0);
                 statement.setLong(8, System.currentTimeMillis());
                 statement.setLong(9, System.currentTimeMillis());
+                statement.setInt(10, 0);
                 statement.executeUpdate();
                 statement.close();
             } catch(SQLException e) {
@@ -310,6 +311,36 @@ public class DatabasePlayers {
         } catch(SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setLoginStreak(UUID uuid, int loginStreak) {
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("UPDATE Players SET LoginStreak = ? WHERE UUID = ?");
+            statement.setInt(1, loginStreak);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+            statement.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getLoginStreak(UUID uuid) {
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM Players WHERE UUID = ?");
+            statement.setString(1, uuid.toString());
+
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+                return resultSet.getInt("LoginStreak");
+            }
+
+            statement.close();
+            resultSet.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
 }

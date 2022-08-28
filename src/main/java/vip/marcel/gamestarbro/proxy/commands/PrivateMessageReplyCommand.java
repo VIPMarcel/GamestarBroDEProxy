@@ -49,8 +49,17 @@ public class PrivateMessageReplyCommand extends Command {
             }
 
             this.plugin.getPrivateMessageChannel().put(target, player);
-            player.sendMessage("§8§l┃ §aMSG §8► " + player.getDisplayName() + " §8➟ " + target.getDisplayName() + " §8» §7" + message);
-            target.sendMessage("§8§l┃ §aMSG §8► " + player.getDisplayName() + " §8➟ " + target.getDisplayName() + " §8» §7" + message);
+            player.sendMessage("§8§l┃ §aMSG §8► §e" + player.getName() + " §8➟ §e" + target.getName() + " §8» §7" + message);
+            target.sendMessage("§8§l┃ §aMSG §8► §e" + player.getName() + " §8➟ §e" + target.getName() + " §8» §7" + message);
+
+            String finalMessage = message;
+            ProxyServer.getInstance().getPlayers().forEach(players -> {
+                if(this.plugin.getSocialSpy().contains(players)) {
+                    if(players != player) {
+                        players.sendMessage("§8§l┃ §6SocialSpy §8► §e" + player.getName() + " §8➟ §e" + target.getName() + " §8» §7" + finalMessage);
+                    }
+                }
+            });
 
         } else {
             sender.sendMessage(this.plugin.getPrefix() + "§cDieser Befehl ist nur für echte Spieler geeignet.");
