@@ -27,6 +27,7 @@ public class AnnounceInformationRunnable {
         this.announceMessages.add("Mit §e/report §7kannst du §cRegelbrecher §7melden.");
         this.announceMessages.add("Mit §e/discord §7kannst du unseren §eDiscord- Server §7beitreten.");
         this.announceMessages.add("Mit §e/help §7kannst du die §ewichtigsten Befehle §7sehen.");
+        this.announceMessages.add("Mit §e/verify §7kannst du dich §everifizieren§7.");
         this.announceMessages.add("Du hast einen §cBug §7gefunden? Melde ihn im Discord.");
         this.announceMessages.add("Du hast einen §eVerbesserungsvorschlag§7? Teile ihn uns mit.");
         this.announceMessages.add("Du möchtest uns unterstützen? Eröffne ein §eTicket§7, im Discord.");

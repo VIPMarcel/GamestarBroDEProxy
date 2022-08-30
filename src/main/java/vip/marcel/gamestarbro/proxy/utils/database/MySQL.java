@@ -70,6 +70,12 @@ public class MySQL {
                 statement.close();
             }
 
+            {
+                PreparedStatement statement = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS Verify(id INT AUTO_INCREMENT PRIMARY KEY, UUID TEXT, UserId TEXT, VerifiedAt TEXT)");
+                statement.executeUpdate();
+                statement.close();
+            }
+
         } catch(SQLException e) {
             e.printStackTrace();
         }

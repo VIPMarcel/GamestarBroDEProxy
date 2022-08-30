@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.simplix.protocolize.api.Direction;
 import dev.simplix.protocolize.api.Protocolize;
+import net.dv8tion.jda.api.entities.User;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.ProxyServer;
@@ -24,6 +25,7 @@ import vip.marcel.gamestarbro.proxy.utils.database.abuse.AllAbuseMutes;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.BanAbuse;
 import vip.marcel.gamestarbro.proxy.utils.database.abuse.MuteAbuse;
 import vip.marcel.gamestarbro.proxy.utils.database.chatlog.ChatLog;
+import vip.marcel.gamestarbro.proxy.utils.database.discord.DatabaseVerify;
 import vip.marcel.gamestarbro.proxy.utils.entities.Abuse;
 import vip.marcel.gamestarbro.proxy.utils.entities.Report;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
@@ -74,6 +76,9 @@ public final class Proxy extends Plugin {
     private Map<ProxiedPlayer, ProxiedPlayer> privateMessageChannel;
     private Map<ProxiedPlayer, Report> reports;
 
+    private Map<ProxiedPlayer, String> verifyCodeCheck;
+    private Map<ProxiedPlayer, User> verifyUserCheck;
+
     private Map<UUID, Integer> spamCount;
     private Map<UUID, Integer> messageCount;
     private Map<UUID, Integer> insultingCount;
@@ -85,6 +90,7 @@ public final class Proxy extends Plugin {
     private AllAbuseBans allAbuseBans;
     private AllAbuseMutes allAbuseMutes;
     private DatabasePlayers databasePlayers;
+    private DatabaseVerify databaseVerify;
 
     private ChatLog chatLog;
     private ChatFilter chatFilter;
@@ -134,6 +140,9 @@ public final class Proxy extends Plugin {
         this.privateMessageChannel = Maps.newHashMap();
         this.reports = Maps.newHashMap();
 
+        this.verifyCodeCheck = Maps.newHashMap();
+        this.verifyUserCheck = Maps.newHashMap();
+
         this.spamCount = Maps.newHashMap();
         this.messageCount = Maps.newHashMap();
         this.insultingCount = Maps.newHashMap();
@@ -151,6 +160,7 @@ public final class Proxy extends Plugin {
         this.allAbuseBans = new AllAbuseBans(this);
         this.allAbuseMutes = new AllAbuseMutes(this);
         this.databasePlayers = new DatabasePlayers(this);
+        this.databaseVerify = new DatabaseVerify(this);
 
         this.chatLog = new ChatLog(this);
         this.chatFilter = new ChatFilter(this);
@@ -166,6 +176,9 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new CheckAbusesCommand(this, "checkAbuses", "proxy.command.checkAbuses"));
         pluginManager.registerCommand(this, new KickCommand(this, "kick", "proxy.command.kick"));
         pluginManager.registerCommand(this, new ChatLogCommand(this, "chatlog", "proxy.command.chatlog"));
+
+        pluginManager.registerCommand(this, new VerifyCommand(this, "verify"));
+        pluginManager.registerCommand(this, new UnLinkCommand(this, "unlink", "proxy.command.unlink"));
 
         pluginManager.registerCommand(this, new AlertCommand(this, "alert", "proxy.command.alert"));
         pluginManager.registerCommand(this, new AlertCommand(this, "broadcast", "proxy.command.alert"));
@@ -294,6 +307,10 @@ public final class Proxy extends Plugin {
         return this.databasePlayers;
     }
 
+    public DatabaseVerify getDatabaseVerify() {
+        return this.databaseVerify;
+    }
+
     public ChatLog getChatLog() {
         return this.chatLog;
     }
@@ -356,6 +373,14 @@ public final class Proxy extends Plugin {
 
     public Map<ProxiedPlayer, Report> getReports() {
         return this.reports;
+    }
+
+    public Map<ProxiedPlayer, String> getVerifyCodeCheck() {
+        return this.verifyCodeCheck;
+    }
+
+    public Map<ProxiedPlayer, User> getVerifyUserCheck() {
+        return this.verifyUserCheck;
     }
 
     public Map<UUID, Integer> getSpamCount() {

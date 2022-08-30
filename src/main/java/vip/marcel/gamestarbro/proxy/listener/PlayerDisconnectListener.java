@@ -20,6 +20,9 @@ public record PlayerDisconnectListener(Proxy plugin) implements Listener {
         this.plugin.getSocialSpy().remove(player);
         this.plugin.getCommandSpy().remove(player);
 
+        this.plugin.getVerifyCodeCheck().remove(player);
+        this.plugin.getVerifyUserCheck().remove(player);
+
         if(this.plugin.getOnlineStaff().contains(player)) {
             for(ProxiedPlayer players : ProxyServer.getInstance().getPlayers()) {
                 if(this.plugin.getOnlineStaff().contains(players)) {

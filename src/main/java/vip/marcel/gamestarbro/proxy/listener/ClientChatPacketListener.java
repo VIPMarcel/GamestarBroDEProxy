@@ -6,6 +6,7 @@ import dev.simplix.protocolize.api.listener.AbstractPacketListener;
 import dev.simplix.protocolize.api.listener.PacketReceiveEvent;
 import dev.simplix.protocolize.api.listener.PacketSendEvent;
 import dev.simplix.protocolize.api.player.ProtocolizePlayer;
+import net.dv8tion.jda.api.entities.User;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.packet.ClientChat;
@@ -38,6 +39,26 @@ public class ClientChatPacketListener extends AbstractPacketListener<ClientChat>
         event.cancelled(true);
 
         ProxyServer.getInstance().getScheduler().runAsync(this.plugin, () -> {
+
+            if(this.plugin.getVerifyCodeCheck().containsKey(player)) {
+                if(packet.getMessage().equals(this.plugin.getVerifyCodeCheck().get(player))) {
+                    final User user = this.plugin.getVerifyUserCheck().get(player);
+                    final String userName = user.getName();
+
+                    this.plugin.getDatabaseVerify().createPlayer(player.getUniqueId(), user.getId());
+
+                    this.plugin.getDiscordStaffBOT().addVerifiedRole(user);
+
+                    player.sendMessage("§8§l┃ §aVerify §8► §7" + "§aDu hast dich erfolgreich verifiziert mit §e" + userName + "§a.");
+                } else {
+                    player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cDu hast einen falschen §eVerifizierungscode §ceingegeben.");
+                    player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cGib erneut §e/verify §cein, um dich zu verifizieren.");
+                }
+                this.plugin.getVerifyCodeCheck().remove(player);
+                this.plugin.getVerifyUserCheck().remove(player);
+                return;
+            }
+
             if(this.plugin.getAbuseManager().isAbuse(AbuseType.MUTE, player.getUniqueId())) {
                 handlePlayerMute(player);
             } else {

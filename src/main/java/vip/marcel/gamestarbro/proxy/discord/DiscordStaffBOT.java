@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 
@@ -166,6 +167,30 @@ public class DiscordStaffBOT {
         builder.setColor(Color.YELLOW);
 
         this.informationChannel.sendMessageEmbeds(builder.build()).queue();
+    }
+
+    public boolean addVerifiedRole(User user) {
+
+        if(user == null) {
+            return false;
+        }
+
+        this.jda.getGuildById("750765250571141251").addRoleToMember(user, this.jda.getGuildById("750765250571141251").getRoleById("1013824297493594142")).queue();
+        return true;
+    }
+
+    public boolean removeVerifiedRole(User user) {
+
+        if(user == null) {
+            return false;
+        }
+
+        this.jda.getGuildById("750765250571141251").removeRoleFromMember(user, this.jda.getGuildById("750765250571141251").getRoleById("1013824297493594142")).queue();
+        return true;
+    }
+
+    public JDA getJDA() {
+        return this.jda;
     }
 
 }
