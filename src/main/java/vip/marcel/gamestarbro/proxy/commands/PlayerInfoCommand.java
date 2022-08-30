@@ -91,8 +91,18 @@ public class PlayerInfoCommand extends Command implements TabExecutor {
                 sender.sendMessage(this.plugin.getTeamPrefix());
             }
 
+            if(this.plugin.getDatabaseVerify().doesPlayerExists(uuid)) {
+                TextComponent ipAdress = new TextComponent(this.plugin.getDatabaseVerify().getUserId(uuid));
+                ipAdress.setColor(ChatColor.YELLOW);
+                ipAdress.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§8» §aKlicke um zu kopieren.").create()));
+                ipAdress.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, this.plugin.getDatabaseVerify().getUserId(uuid)));
+                sender.sendMessage(new TextComponent(this.plugin.getTeamPrefix() + "§7Discord-ID §8» §e"), ipAdress);
+                sender.sendMessage(this.plugin.getTeamPrefix());
+            }
+
             if(this.plugin.getDatabasePlayers().doesPlayerExists(uuid)) {
                 sender.sendMessage(this.plugin.getTeamPrefix() + "§7Spielzeit §8» §e" + this.plugin.getAbuseTimeManager().getSimpleTimeString(this.plugin.getDatabasePlayers().getPlayTime(uuid)));
+                sender.sendMessage(this.plugin.getTeamPrefix() + "§7Login-Streak §8» §e" + this.plugin.getDatabasePlayers().getLoginStreak(uuid));
                 sender.sendMessage(this.plugin.getTeamPrefix());
                 sender.sendMessage(this.plugin.getTeamPrefix() + "§7Straflevel §8» §c" + this.plugin.getDatabasePlayers().getAbuseLevel(uuid));
                 sender.sendMessage(this.plugin.getTeamPrefix() + "§7Kicks §8» §c" + this.plugin.getDatabasePlayers().getKicksAmount(uuid));
@@ -122,6 +132,7 @@ public class PlayerInfoCommand extends Command implements TabExecutor {
 
             } else {
                 sender.sendMessage(this.plugin.getTeamPrefix() + "§7Spielzeit §8» §e" + "0 Sekunden");
+                sender.sendMessage(this.plugin.getTeamPrefix() + "§7Login-Streak §8» §e" + "0");
                 sender.sendMessage(this.plugin.getTeamPrefix());
                 sender.sendMessage(this.plugin.getTeamPrefix() + "§7Straflevel §8» §c" + "0");
                 sender.sendMessage(this.plugin.getTeamPrefix() + "§7Kicks §8» §c" + "0");

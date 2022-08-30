@@ -2,6 +2,7 @@ package vip.marcel.gamestarbro.proxy.commands;
 
 import net.dv8tion.jda.api.entities.User;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Command;
 import vip.marcel.gamestarbro.proxy.Proxy;
 import vip.marcel.gamestarbro.proxy.utils.fetcher.UUIDFetcher;
@@ -46,6 +47,11 @@ public class UnLinkCommand extends Command {
             if(this.plugin.getDiscordStaffBOT().removeVerifiedRole(user)) {
                 this.plugin.getDatabaseVerify().deletePlayer(uuid);
                 sender.sendMessage("§8§l┃ §aVerify §8► §7" + "Verifizierung von §e" + name + " §7gelöscht.");
+
+                if(ProxyServer.getInstance().getPlayer(name) != null) {
+                    ProxyServer.getInstance().getPlayer(name).sendMessage("§8§l┃ §aVerify §8► §7" + "§cDeine Verifizierung wurde durch einen Administrator gelöscht.");
+                }
+
             }
 
         } else {

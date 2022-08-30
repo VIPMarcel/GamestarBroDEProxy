@@ -45,12 +45,12 @@ public class VerifyCommand extends Command {
             final String memberId = member.getId();
 
             if(this.plugin.getDatabaseVerify().doesPlayerExists(player.getUniqueId())) {
-                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cDein Minecraft Account ist bereits mit einem Member verifiziert.");
+                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cDein Minecraft Account ist bereits mit Discord verifiziert.");
                 return;
             }
 
             if(this.plugin.getDatabaseVerify().doesPlayerExists(memberId)) {
-                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cDer Member ist bereits mit einem Minecraft Account verifiziert.");
+                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cDer Discord Account ist bereits mit Minecraft verifiziert.");
                 return;
             }
 
@@ -64,6 +64,7 @@ public class VerifyCommand extends Command {
                             + member.getAsMention() + ", schreibe diesen Code in den Minecraft-Chat, um dich zu verifizieren");
                     builder.setColor(Color.GREEN);
 
+                    player.sendMessage("§8§l┃ §aVerify §8► §7" + "Checke deine §eDiscord Nachrichten §7nach dem §aCode§7. ");
                 privateChannel.sendMessageEmbeds(builder.build()).queue(success -> {
                     this.plugin.getVerifyCodeCheck().put(player, verifyCode);
                     this.plugin.getVerifyUserCheck().put(player, member.getUser());

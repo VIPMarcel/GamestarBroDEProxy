@@ -7,7 +7,11 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import vip.marcel.gamestarbro.proxy.Proxy;
+import vip.marcel.gamestarbro.proxy.discord.listeners.SlashCommandInteractionListener;
 import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 
 import javax.security.auth.login.LoginException;
@@ -38,7 +42,13 @@ public class DiscordStaffBOT {
             this.jdaBuilder = JDABuilder.createDefault(StaffBOTToken.TOKEN);
             this.jdaBuilder.setActivity(Activity.watching("GamestarBro Server"));
             this.jdaBuilder.setStatus(OnlineStatus.ONLINE);
+            this.jdaBuilder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT);
+            this.jdaBuilder.setMemberCachePolicy(MemberCachePolicy.ALL);
             this.jda = this.jdaBuilder.build().awaitReady();
+
+            this.jda.addEventListener(new SlashCommandInteractionListener(this.plugin));
+            this.jda.upsertCommand("minecraftname", "Lasse dir den Minecraft-Namen von verifizierten Spielern anzeigen,")
+                    .addOption(OptionType.USER, "name", "Der Discord User", true).queue();
         } catch(LoginException | InterruptedException e) {
             e.printStackTrace();
         }
