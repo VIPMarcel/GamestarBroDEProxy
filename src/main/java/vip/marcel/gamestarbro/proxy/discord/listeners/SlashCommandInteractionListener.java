@@ -19,14 +19,15 @@ public class SlashCommandInteractionListener extends ListenerAdapter {
         if(event.getName().equalsIgnoreCase("minecraftname")) {
             OptionMapping nameOption = event.getOption("name");
 
+            event.deferReply().queue();
             //do async
 
             if(!this.plugin.getDatabaseVerify().doesPlayerExists(nameOption.getAsMember().getId())) {
-                event.reply("Der Member " + nameOption.getAsMentionable() + " hat sich nicht mit Minecraft verifiziert.").queue();
+                event.getHook().sendMessage("Der Member " + nameOption.getAsMentionable() + " hat sich nicht mit Minecraft verifiziert.").queue();
                 return;
             }
 
-            event.reply("Der Ingame-Name von " + nameOption.getAsMentionable() + " ist » '" + UUIDFetcher.getName(this.plugin.getDatabaseVerify().getUuid(nameOption.getAsMember().getId()))).setEphemeral(true).queue();
+            event.getHook().sendMessage("Der Ingame-Name von " + nameOption.getAsMentionable() + " ist » '" + UUIDFetcher.getName(this.plugin.getDatabaseVerify().getUuid(nameOption.getAsMember().getId()))).setEphemeral(true).queue();
         }
 
     }

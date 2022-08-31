@@ -1,21 +1,40 @@
-proxy.command.abuse - /abuse <Player> <AbuseNumber>
 proxy.abuse.notify - Get abuse messages
 proxy.abuse.bypass - no kicks/abuse to the player, staff-member?
-
 abuse.<AbusePermission> - use the abuse reason
 
-proxy.command.pardon - /pardon <Player>
-proxy.command.pardonId - /pardonId <AbuseId>
 proxy.pardon.notify - Get pardon messages
 
-proxy.command.checkAbuse - /checkAbuse <AbuseId>
-proxy.command.checkAbuses - /checkAbuses <Player>
-proxy.command.chatLog - /chatLog <AbuseId>
-
-proxy.command.kick - /kick <Player> [Reason]
-
-------------------------------------------------------------------------------
 proxy.join.full - join network when max player amount is reached
 proxy.staff - player is a staff member
 proxy.admin - player is a admin/owner (use black-,whitelist, show ips, disable chat filters)
 proxy.join.maintenance - join while maintenance is enabled and player is not whitelisted
+
+--------------------------------
+Commands | Permission:
+
+  /abuse <Spieler> <AbuseId> | proxy.command.abuse
+  /pardon <Spieler> <MUTE/BANN> | proxy.command.pardon
+  /pardonId <AbuseId> | proxy.command.pardonId
+  /checkAbuse <AbuseId> | proxy.command.checkAbuse
+  /checkAbuses <Spieler> | proxy.command.checkAbuses
+  /kick <Spieler> <Grund> | proxy.command.kick
+  /chatlog <AbuseId> | proxy.command.chatlog
+  /alert <Broadcast> | proxy.command.alert
+  /alertdiscord <Broadcast> | proxy.command.alertdiscord
+  /bauserver | proxy.command.bauserver
+  /blacklist <add/remove/list> <Spieler> | proxy.admin
+  /blacklistIp <add/remove/list> <Spieler> | proxy.admin
+  /devserver | proxy.command.devserver
+  /chatclear | proxy.command.chatclear
+  /maintenance | proxy.admin
+  /notifytoggle | proxy.staff
+  /playerinfo <Spieler> | proxy.command.playerinfo
+  /reloadbungee | proxy.command.reloadbungeesystem
+  /reports | proxy.staff
+  /teamchat | proxy.staff
+  /staffonline | proxy.staff
+  /connect <Servername> | proxy.staff
+  /whereis <Spieler> | proxy.staff
+  /globalwhitelist <add/remove/list> <Spieler> | proxy.admin
+  /socialspy | proxy.command.socialspy
+  /commandspy | proxy.command.commandspy

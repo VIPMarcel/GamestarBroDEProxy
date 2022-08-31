@@ -50,6 +50,8 @@ public class ClientChatPacketListener extends AbstractPacketListener<ClientChat>
                     this.plugin.getDiscordStaffBOT().addVerifiedRole(user);
 
                     player.sendMessage("§8§l┃ §aVerify §8► §7" + "§aDu hast dich erfolgreich verifiziert mit §e" + userName + "§a.");
+                    player.sendMessage(this.plugin.getPrefix() + "Dir wurden §e5.000 Coins §7gutgeschrieben.");
+                    this.plugin.getDatabasePlayers().setCoins(player.getUniqueId(), this.plugin.getDatabasePlayers().getCoins(player.getUniqueId()) + 5000);
                 } else {
                     player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cDu hast einen falschen §eVerifizierungscode §ceingegeben.");
                     player.sendMessage("§8§l┃ §aVerify §8► §7" + "§cGib erneut §e/verify §cein, um dich zu verifizieren.");

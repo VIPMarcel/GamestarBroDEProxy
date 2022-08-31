@@ -119,6 +119,12 @@ public record ServerConnectListener(Proxy plugin) implements Listener {
             player.sendMessage("                         §7Login- Streak §8» §a" + this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + "★");
             player.sendMessage("§8§m-----------------------------------------------------");
 
+            if(!this.plugin.getDatabaseVerify().doesPlayerExists(player.getUniqueId())) {
+                player.sendMessage(" ");
+                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§eDein Account ist noch nicht mit Discord verifiziert.");
+                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§7Benutze §e/verify §7um dich zu verifizieren.");
+            }
+
         }
 
     }
