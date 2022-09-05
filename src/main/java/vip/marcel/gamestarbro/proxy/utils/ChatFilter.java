@@ -63,13 +63,11 @@ public record ChatFilter(Proxy plugin) {
             socket.connect(new InetSocketAddress(address, port), 1000);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
             return false;
         } finally {
             try {
                 socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
     }
