@@ -43,12 +43,12 @@ public class StaffChatCommand extends Command {
             ProxyServer.getInstance().getPlayers().forEach(players -> {
                 if(this.plugin.getOnlineStaff().contains(players)) {
                     if(!this.plugin.getStaffNotifyToggle().contains(players)) {
-                        players.sendMessage(this.plugin.getTeamPrefix() + "§c" + player.getName() + "§8 » §7" + finalMessage);
+                        players.sendMessage(this.plugin.getTeamPrefix() + "§e" + player.getServer().getInfo().getName() + " §8┃ §c" + player.getName() + "§8 » §7" + finalMessage);
                     }
                 }
             });
 
-            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§c" + player.getName() + "§8 » §7" + finalMessage);
+            ProxyServer.getInstance().getConsole().sendMessage(this.plugin.getTeamPrefix() + "§e" + player.getServer().getInfo().getName() + " §8┃ §c" + player.getName() + "§8 » §7" + finalMessage);
 
         } else {
 
