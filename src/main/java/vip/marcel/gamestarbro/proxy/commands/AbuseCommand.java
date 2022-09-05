@@ -158,6 +158,9 @@ public class AbuseCommand extends Command implements TabExecutor {
         this.plugin.getChatLog().logChatMessages(uuid, abusedInfo.getAbuseId(), 20);
         sender.sendMessage(this.plugin.getTeamPrefix() + "§eChatLogs der letzten 20 Nachrichten werden erstellt..");
 
+        ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
+            this.plugin.getDiscordStaffBOT().sendChatlogMessages(name, abusedInfo.getAbuseId());
+        }, 2, TimeUnit.SECONDS);
 
         final ProxiedPlayer target = ProxyServer.getInstance().getPlayer(uuid);
 

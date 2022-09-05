@@ -16,6 +16,7 @@ import vip.marcel.gamestarbro.proxy.utils.enums.AbuseType;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class DiscordStaffBOT {
@@ -26,6 +27,7 @@ public class DiscordStaffBOT {
 
     private final TextChannel abusesChannel;
     private final TextChannel reportsChannel;
+    private final TextChannel chatlogChannel;
     private final TextChannel informationChannel;
 
     public DiscordStaffBOT(Proxy plugin) {
@@ -34,6 +36,7 @@ public class DiscordStaffBOT {
         this.initBOT();
         this.abusesChannel = this.jda.getTextChannelById("1013450527725600858");
         this.reportsChannel = this.jda.getTextChannelById("1013450766054326384");
+        this.chatlogChannel = this.jda.getTextChannelById("1016461327125987408");
         this.informationChannel = this.jda.getTextChannelById("1001192598448373891");
     }
 
@@ -177,6 +180,32 @@ public class DiscordStaffBOT {
         builder.setColor(Color.YELLOW);
 
         this.informationChannel.sendMessageEmbeds(builder.build()).queue();
+    }
+
+    public void sendChatlogMessages(String playername, String abuseId) {
+        if(this.chatlogChannel == null) {
+            return;
+        }
+
+        final List<String> lastLogs = this.plugin.getChatLog().getLastLogs(abuseId, 20);
+        final StringBuilder stringBuilder = new StringBuilder();
+
+        if(lastLogs.isEmpty()) {
+            return;
+        }
+
+        final EmbedBuilder builder = new EmbedBuilder();
+
+        builder.setTitle(":newspaper: | ChatLog");
+
+        lastLogs.forEach(log -> {
+            stringBuilder.append(log.replaceAll("§e", "").replaceAll("§8", "").replaceAll("§7", "")).append("\n");
+        });
+
+        builder.setDescription("Spieler » " + playername + " | AbuseId » " + abuseId + "\n\n" + stringBuilder.toString());
+        builder.setColor(Color.WHITE);
+
+        this.chatlogChannel.sendMessageEmbeds(builder.build()).queue();
     }
 
     public boolean addVerifiedRole(User user) {
