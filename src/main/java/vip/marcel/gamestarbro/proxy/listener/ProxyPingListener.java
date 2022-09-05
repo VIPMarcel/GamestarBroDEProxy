@@ -12,7 +12,6 @@ import vip.marcel.gamestarbro.proxy.Proxy;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 public record ProxyPingListener(Proxy plugin) implements Listener {
 
@@ -25,7 +24,23 @@ public record ProxyPingListener(Proxy plugin) implements Listener {
         final String motd2 = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfigManager().getConfiguration().getString("Server.Modt.2"));
         final String motdMaintenance = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfigManager().getConfiguration().getString("Server.Modt.Maintenance"));
 
-        if(this.plugin.getBlacklistedIPs().contains(event.getConnection().getSocketAddress().toString().split(":")[0].replaceFirst("/", ""))) {
+        final String ipAdress = event.getConnection().getSocketAddress().toString().split(":")[0].replaceFirst("/", "");
+
+        if(!this.plugin.getShowServerPings().isEmpty()) {
+            new Thread(() -> {
+                final String name = this.plugin.getDatabasePlayers().getPlayerName(ipAdress);
+
+                this.plugin.getShowServerPings().forEach(player -> {
+                    if(name != null) {
+                        player.sendMessage("§8§l┃ §6Serverliste §8► §7" + "§e" + ipAdress + "§8(§e" + name + "§8) §7gepingt");
+                    } else {
+                        player.sendMessage("§8§l┃ §6Serverliste §8► §7" + "§e" + ipAdress + " §7gepingt.");
+                    }
+                });
+            });
+        }
+
+        if(this.plugin.getBlacklistedIPs().contains(ipAdress)) {
             ping.setVersion(new ServerPing.Protocol("", Short.MAX_VALUE));
             ping.setDescription("§4Can't connect to server");
             return;

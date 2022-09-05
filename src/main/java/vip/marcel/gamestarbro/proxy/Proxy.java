@@ -57,6 +57,7 @@ public final class Proxy extends Plugin {
     private List<ProxiedPlayer> notifyToggle;
     private List<ProxiedPlayer> socialSpy;
     private List<ProxiedPlayer> commandSpy;
+    private List<ProxiedPlayer> showServerPings;
     private List<UUID> chatCooldown;
     private List<UUID> reportCommandCooldown;
 
@@ -132,6 +133,7 @@ public final class Proxy extends Plugin {
         this.notifyToggle = Lists.newArrayList();
         this.socialSpy = Lists.newArrayList();
         this.commandSpy = Lists.newArrayList();
+        this.showServerPings = Lists.newArrayList();
         this.abuseReasons = Maps.newHashMap();
         this.abuseIds = Maps.newHashMap();
 
@@ -180,6 +182,8 @@ public final class Proxy extends Plugin {
         pluginManager.registerCommand(this, new VerifyCommand(this, "verify"));
         pluginManager.registerCommand(this, new UnLinkCommand(this, "unlink", "proxy.command.unlink"));
 
+        pluginManager.registerCommand(this, new ShowServerPingsCommand(this, "showserverpings", "proxy.admin"));
+        pluginManager.registerCommand(this, new ShowServerPingsCommand(this, "showpings", "proxy.admin"));
         pluginManager.registerCommand(this, new AlertCommand(this, "alert", "proxy.command.alert"));
         pluginManager.registerCommand(this, new AlertCommand(this, "broadcast", "proxy.command.alert"));
         pluginManager.registerCommand(this, new AlertDiscordCommand(this, "alertdiscord", "proxy.command.alertdiscord"));
@@ -445,6 +449,10 @@ public final class Proxy extends Plugin {
 
     public List<ProxiedPlayer> getCommandSpy() {
         return this.commandSpy;
+    }
+
+    public List<ProxiedPlayer> getShowServerPings() {
+        return this.showServerPings;
     }
 
     public List<UUID> getChatCooldown() {

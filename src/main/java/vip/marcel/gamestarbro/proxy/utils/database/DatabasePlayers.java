@@ -103,6 +103,24 @@ public class DatabasePlayers {
         return null;
     }
 
+    public String getPlayerName(String ipAdress) {
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM Players WHERE IPAdress = ?");
+            statement.setString(1, ipAdress);
+
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+                return resultSet.getString("PlayerName");
+            }
+
+            statement.close();
+            resultSet.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String getIPAdress(UUID uuid) {
         try {
             PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM Players WHERE UUID = ?");
