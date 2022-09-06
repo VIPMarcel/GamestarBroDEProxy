@@ -27,16 +27,14 @@ public record ProxyPingListener(Proxy plugin) implements Listener {
         final String ipAdress = event.getConnection().getSocketAddress().toString().split(":")[0].replaceFirst("/", "");
 
         if(!this.plugin.getShowServerPings().isEmpty()) {
-            new Thread(() -> {
-                final String name = this.plugin.getDatabasePlayers().getPlayerName(ipAdress);
+            final String name = this.plugin.getDatabasePlayers().getPlayerName(ipAdress);
 
-                this.plugin.getShowServerPings().forEach(player -> {
-                    if(name != null) {
-                        player.sendMessage("§8§l┃ §6Serverliste §8► §7" + "§e" + ipAdress + "§8(§e" + name + "§8) §7gepingt");
-                    } else {
-                        player.sendMessage("§8§l┃ §6Serverliste §8► §7" + "§e" + ipAdress + " §7gepingt.");
-                    }
-                });
+            this.plugin.getShowServerPings().forEach(player -> {
+                if(name != null) {
+                    player.sendMessage("§8§l┃ §6Serverliste §8► §7" + "§e" + ipAdress + "§8(§e" + name + "§8) §7hat gepingt");
+                } else {
+                    player.sendMessage("§8§l┃ §6Serverliste §8► §7" + "§e" + ipAdress + " §7hat gepingt.");
+                }
             });
         }
 

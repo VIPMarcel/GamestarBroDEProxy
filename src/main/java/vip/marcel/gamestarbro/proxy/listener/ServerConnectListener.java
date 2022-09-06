@@ -12,6 +12,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import vip.marcel.gamestarbro.proxy.Proxy;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public record ServerConnectListener(Proxy plugin) implements Listener {
@@ -103,27 +104,31 @@ public record ServerConnectListener(Proxy plugin) implements Listener {
 
             event.setTarget(ProxyServer.getInstance().getServerInfo(this.plugin.getLobbyServerName()));
 
-            final long lastSeenMillis = this.plugin.getDatabasePlayers().getLastSeenMillis(player.getUniqueId());
-            final long diffMillis = System.currentTimeMillis() - lastSeenMillis;
+            CompletableFuture.runAsync(() -> {
+                this.plugin.getDatabasePlayers().setPlayerName(player.getUniqueId(), player.getName());
 
-            if(diffMillis > TimeUnit.DAYS.toMillis(2)) {
-                this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), 0);
-            } else if(TimeUnit.MILLISECONDS.toDays(lastSeenMillis) != TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis())) {
-                this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + 1);
-            }
+                final long lastSeenMillis = this.plugin.getDatabasePlayers().getLastSeenMillis(player.getUniqueId());
+                final long diffMillis = System.currentTimeMillis() - lastSeenMillis;
 
-            player.sendMessage(" ");
-            player.sendMessage(" ");
-            player.sendMessage("§8§m-----------------------------------------------------");
-            player.sendMessage("                  §7Herzlich Willkommen auf §6GamestarBro.de");
-            player.sendMessage("                         §7Login- Streak §8» §a" + this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + "★");
-            player.sendMessage("§8§m-----------------------------------------------------");
+                if(diffMillis > TimeUnit.DAYS.toMillis(2)) {
+                    this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), 0);
+                } else if(TimeUnit.MILLISECONDS.toDays(lastSeenMillis) != TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis())) {
+                    this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + 1);
+                }
 
-            if(!this.plugin.getDatabaseVerify().doesPlayerExists(player.getUniqueId())) {
                 player.sendMessage(" ");
-                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§eDein Account ist noch nicht mit Discord verifiziert.");
-                player.sendMessage("§8§l┃ §aVerify §8► §7" + "§7Benutze §e/verify §7um dich zu verifizieren.");
-            }
+                player.sendMessage(" ");
+                player.sendMessage("§8§m-----------------------------------------------------");
+                player.sendMessage("                  §7Herzlich Willkommen auf §6GamestarBro.de");
+                player.sendMessage("                         §7Login- Streak §8» §a" + this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + "★");
+                player.sendMessage("§8§m-----------------------------------------------------");
+
+                if(!this.plugin.getDatabaseVerify().doesPlayerExists(player.getUniqueId())) {
+                    player.sendMessage(" ");
+                    player.sendMessage("§8§l┃ §aVerify §8► §7" + "§eDein Account ist noch nicht mit Discord verifiziert.");
+                    player.sendMessage("§8§l┃ §aVerify §8► §7" + "§7Benutze §e/verify §7um dich zu verifizieren.");
+                }
+            });
 
         }
 
