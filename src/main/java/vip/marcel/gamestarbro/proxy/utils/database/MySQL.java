@@ -65,7 +65,7 @@ public class MySQL {
             }
 
             {
-                PreparedStatement statement = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS Players(id INT AUTO_INCREMENT PRIMARY KEY, UUID TEXT, PlayerName TEXT, IPAdress TEXT, AbuseLevel INT, KicksAmount INT, PlayTime TEXT, Coins INT, FirstJoin TEXT, LastSeen TEXT, LoginStreak INT)");
+                PreparedStatement statement = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS Players(id INT AUTO_INCREMENT PRIMARY KEY, UUID TEXT, PlayerName TEXT, IPAdress TEXT, AbuseLevel INT, KicksAmount INT, PlayTime TEXT, Coins INT, FirstJoin TEXT, LastSeen TEXT, LoginStreak INT, LoginStreakCollected INT)");
                 statement.executeUpdate();
                 statement.close();
             }

@@ -112,8 +112,10 @@ public record ServerConnectListener(Proxy plugin) implements Listener {
 
                 if(diffMillis > TimeUnit.DAYS.toMillis(2)) {
                     this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), 0);
+                    this.plugin.getDatabasePlayers().setLoginStreakCollected(player.getUniqueId(), false);
                 } else if(TimeUnit.MILLISECONDS.toDays(lastSeenMillis) != TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis())) {
                     this.plugin.getDatabasePlayers().setLoginStreak(player.getUniqueId(), this.plugin.getDatabasePlayers().getLoginStreak(player.getUniqueId()) + 1);
+                    this.plugin.getDatabasePlayers().setLoginStreakCollected(player.getUniqueId(), false);
                 }
 
                 player.sendMessage(" ");

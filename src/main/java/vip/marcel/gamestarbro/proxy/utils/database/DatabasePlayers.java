@@ -35,7 +35,7 @@ public class DatabasePlayers {
     public void createPlayer(UUID uuid) {
         if(!doesPlayerExists(uuid)) {
             try {
-                PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("INSERT INTO Players(UUID, PlayerName, IPAdress, AbuseLevel, KicksAmount, PlayTime, Coins, FirstJoin, LastSeen, LoginStreak) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("INSERT INTO Players(UUID, PlayerName, IPAdress, AbuseLevel, KicksAmount, PlayTime, Coins, FirstJoin, LastSeen, LoginStreak, LoginStreakCollected) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 statement.setString(1, uuid.toString());
                 statement.setString(2, "");
                 statement.setString(3, "");
@@ -46,6 +46,7 @@ public class DatabasePlayers {
                 statement.setLong(8, System.currentTimeMillis());
                 statement.setLong(9, System.currentTimeMillis());
                 statement.setInt(10, 0);
+                statement.setInt(11, 0);
                 statement.executeUpdate();
                 statement.close();
             } catch(SQLException e) {
@@ -359,6 +360,41 @@ public class DatabasePlayers {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public void setLoginStreakCollected(UUID uuid, boolean collected) {
+        try {
+            int value = (collected ? 1 : 0);
+
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("UPDATE Players SET LoginStreakCollected = ? WHERE UUID = ?");
+            statement.setInt(1, value);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+            statement.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean getLoginStreakCollected(UUID uuid) {
+        int value = 1;
+
+        try {
+            PreparedStatement statement = this.plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM Players WHERE UUID = ?");
+            statement.setString(1, uuid.toString());
+
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+                value = resultSet.getInt("LoginStreakCollected");
+            }
+
+            statement.close();
+            resultSet.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+
+        return value == 1;
     }
 
 }
