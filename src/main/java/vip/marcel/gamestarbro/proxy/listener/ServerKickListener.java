@@ -17,6 +17,11 @@ public record ServerKickListener(Proxy plugin) implements Listener {
 
             if(ProxyServer.getInstance().getServerInfo(player.getServer().getInfo().getName()) != ProxyServer.getInstance().getServerInfo(this.plugin.getLobbyServerName())) {
                 event.setCancelled(true);
+
+                if(player.getServer().getInfo() != ProxyServer.getInstance().getServerInfo(this.plugin.getLobbyServerName())) {
+                    event.setCancelServer(ProxyServer.getInstance().getServerInfo(this.plugin.getLobbyServerName()));
+                }
+
                 player.sendMessage(event.getKickReason());
             }
 
