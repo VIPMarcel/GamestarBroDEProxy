@@ -127,6 +127,7 @@ public class ClientChatPacketListener extends AbstractPacketListener<ClientChat>
                         if(this.plugin.getInsultingCount().get(player.getUniqueId()).equals(3)) {
                             this.plugin.getInsultingCount().remove(player.getUniqueId());
 
+                            addToPlayerChatLogs(player, packet.getMessage());
                             ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "abuse " + player.getName() + " 5");
                         }
 
@@ -147,6 +148,7 @@ public class ClientChatPacketListener extends AbstractPacketListener<ClientChat>
                         if(this.plugin.getAdvertisingCount().get(player.getUniqueId()).equals(3)) {
                             this.plugin.getAdvertisingCount().remove(player.getUniqueId());
 
+                            addToPlayerChatLogs(player, packet.getMessage());
                             ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), "abuse " + player.getName() + " 4");
                         }
 
